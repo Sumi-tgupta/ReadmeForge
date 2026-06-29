@@ -133,4 +133,49 @@
 - Changed:
   - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
   - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
-- Next: Await user review.
+- Next: Await user request for Repository Intelligence Engine.
+
+### Session 13 — 2026-06-29
+- Did: Built a production-grade Repository Intelligence Engine under `server/services/github/` utilizing 15 helper sub-modules for URL validations, metadata lookups, lockfile parsing, frameworks, stack detection, feature mapping, command extraction, ASCII tree rendering, queueing, and memory caching. Created SQLite database caching model `repositoryCache.js` for persistent storage, registered new route handler `generateProject.js` under `/api/generate/project`, and refactored the frontend `ProjectBuilder.jsx` to render step-by-step progress loaders side-by-side with log messages.
+- Changed:
+  - [server/services/github/constants.js](file:///D:/CODE/github_readme_builder/server/services/github/constants.js)
+  - [server/services/github/validators.js](file:///D:/CODE/github_readme_builder/server/services/github/validators.js)
+  - [server/services/github/requestQueue.js](file:///D:/CODE/github_readme_builder/server/services/github/requestQueue.js)
+  - [server/services/github/cache.js](file:///D:/CODE/github_readme_builder/server/services/github/cache.js)
+  - [server/services/github/githubClient.js](file:///D:/CODE/github_readme_builder/server/services/github/githubClient.js)
+  - [server/services/github/treeScanner.js](file:///D:/CODE/github_readme_builder/server/services/github/treeScanner.js)
+  - [server/services/github/dependencyParser.js](file:///D:/CODE/github_readme_builder/server/services/github/dependencyParser.js)
+  - [server/services/github/languageDetector.js](file:///D:/CODE/github_readme_builder/server/services/github/languageDetector.js)
+  - [server/services/github/frameworkDetector.js](file:///D:/CODE/github_readme_builder/server/services/github/frameworkDetector.js)
+  - [server/services/github/stackDetector.js](file:///D:/CODE/github_readme_builder/server/services/github/stackDetector.js)
+  - [server/services/github/featureDetector.js](file:///D:/CODE/github_readme_builder/server/services/github/featureDetector.js)
+  - [server/services/github/commandExtractor.js](file:///D:/CODE/github_readme_builder/server/services/github/commandExtractor.js)
+  - [server/services/github/architectureDetector.js](file:///D:/CODE/github_readme_builder/server/services/github/architectureDetector.js)
+  - [server/services/github/summaryBuilder.js](file:///D:/CODE/github_readme_builder/server/services/github/summaryBuilder.js)
+  - [server/services/github/githubAnalyzer.js](file:///D:/CODE/github_readme_builder/server/services/github/githubAnalyzer.js)
+  - [server/services/github/repositoryScanner.js](file:///D:/CODE/github_readme_builder/server/services/github/repositoryScanner.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/index.js](file:///D:/CODE/github_readme_builder/server/index.js)
+  - [server/models/repositoryCache.js](file:///D:/CODE/github_readme_builder/server/models/repositoryCache.js)
+  - [server/utils/hash.js](file:///D:/CODE/github_readme_builder/server/utils/hash.js)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user request for UI adjustment.
+
+### Session 14 — 2026-06-29
+- Did: Implemented a robust custom regex-based `MarkdownRenderer` component in `src/components/common/` that handles headers, lists, code fences, inline code, bold, italic, links, images, tables, and blockquotes. Cleaned up HTML dangerouslySetInnerHTML rendering inside `ProjectBuilder.jsx` and `GeneratePreview.jsx` using the new component. Reverted `ProfileBuilder.jsx` back to its original step-wizard layout, removing the conversational chat UI per user request.
+- Changed:
+  - [src/components/common/MarkdownRenderer.jsx](file:///D:/CODE/github_readme_builder/src/components/common/MarkdownRenderer.jsx)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [src/features/generator/GeneratePreview.jsx](file:///D:/CODE/github_readme_builder/src/features/generator/GeneratePreview.jsx)
+  - [src/app/routes/pages/ProfileBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProfileBuilder.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user feedback.
+
+### Session 15 — 2026-06-29
+- Did: Modified the Gemini project README system prompt in `server/routes/generateProject.js` to strictly enforce badge generation rules. Added validations to prevent generating License badges when none exists, Build Status badges when no actions are found, and Code Style badges when formatting packages are not present in dependencies.
+- Changed:
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user verification.

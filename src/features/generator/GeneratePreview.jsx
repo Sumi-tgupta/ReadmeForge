@@ -8,6 +8,8 @@ import { useGenerator } from '../../hooks/useGenerator';
 import { useToast } from '../../app/providers/ToastProvider';
 import { parseMarkdownToHtml } from '../../utils/markdown';
 import { copyToClipboard, downloadFile } from '../../utils/clipboard';
+import MarkdownRenderer from '../../components/common/MarkdownRenderer';
+
 
 /**
  * Final step: Generate & Preview — split-screen layout.
@@ -76,7 +78,9 @@ export default function GeneratePreview() {
   // --- Clean preview ---
   const renderCleanPreview = () => (
     <div className={`p-8 rounded-xl ${isDark ? 'bg-gray-900' : 'bg-white'} border ${isDark ? 'border-gray-700' : 'border-gray-200'} overflow-auto max-h-[70vh]`}>
-      <div className="github-markdown-body" dangerouslySetInnerHTML={{ __html: renderedHtml }} />
+      <div className="github-markdown-body">
+        <MarkdownRenderer content={mdToRender} />
+      </div>
     </div>
   );
 
@@ -103,10 +107,9 @@ export default function GeneratePreview() {
         README.md
       </div>
       <div className={`p-6 overflow-auto max-h-[65vh] shadow-inner ${ghPreviewDark ? 'bg-[#0d1117]' : 'bg-white'} ${ghPreviewDark ? 'github-dark' : ''}`}>
-        <div
-          className={`github-markdown-body ${ghPreviewDark ? 'text-[#e6edf3]' : 'text-[#1f2328]'}`}
-          dangerouslySetInnerHTML={{ __html: renderedHtml }}
-        />
+        <div className={`github-markdown-body ${ghPreviewDark ? 'text-[#e6edf3]' : 'text-[#1f2328]'}`}>
+          <MarkdownRenderer content={mdToRender} />
+        </div>
       </div>
     </div>
   );

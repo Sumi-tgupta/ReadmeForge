@@ -4,6 +4,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { initDb } from './db/connection.js';
 import generateRouter from './routes/generate.js';
+import generateProjectRouter from './routes/generateProject.js';
 import projectsRouter from './routes/projects.js';
 import userRouter from './routes/user.js';
 import authRouter from './routes/auth.js';
@@ -31,6 +32,7 @@ app.use(rateLimit({
 
 // --- Routes ---
 app.use('/api/auth', authRouter);
+app.use('/api/generate/project', generateProjectRouter);
 app.use('/api/generate', generateRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/user', userRouter);
