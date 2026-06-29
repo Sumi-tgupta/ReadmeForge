@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo, useContext } from 'react';
+import React, { createContext, useState, useMemo, useContext, useEffect, useCallback } from 'react';
 
 /**
  * Vibe/theme class mappings — extracted from App.jsx getVibeClasses().
@@ -8,20 +8,38 @@ function getVibeClasses(vibe, isDark) {
   const v = {
     minimal: {
       light: {
-        bg:'bg-gray-50', surface:'bg-white border border-gray-200 shadow-sm', text:'text-gray-900',
-        textSec:'text-gray-500', input:'bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
-        btn:'bg-indigo-600 hover:bg-indigo-700 text-white', btnSec:'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200',
-        accent:'text-indigo-600', accentBg:'bg-indigo-600', progress:'bg-indigo-600',
-        card:'bg-white border border-gray-200 shadow-sm', selectedCard:'border-indigo-500 bg-indigo-50 shadow-indigo-100',
-        chip:'bg-indigo-100 text-indigo-700', tabActive:'bg-indigo-600 text-white', tabInactive:'text-gray-600 hover:bg-gray-100',
+        bg: 'bg-[#E2DFD2]',
+        surface: 'bg-white border border-gray-200 shadow-sm',
+        text: 'text-gray-900',
+        textSec: 'text-gray-500',
+        input: 'bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500',
+        btn: 'bg-indigo-600 hover:bg-indigo-700 text-white font-semibold',
+        btnSec: 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200',
+        accent: 'text-indigo-600 font-bold',
+        accentBg: 'bg-indigo-600',
+        progress: 'bg-indigo-600',
+        card: 'bg-white border border-gray-200 shadow-sm',
+        selectedCard: 'border-indigo-500 bg-indigo-50 shadow-indigo-100',
+        chip: 'bg-indigo-100 text-indigo-700',
+        tabActive: 'bg-indigo-600 text-white',
+        tabInactive: 'text-gray-600 hover:bg-gray-100',
       },
       dark: {
-        bg:'bg-gray-950', surface:'bg-gray-900 border border-gray-800', text:'text-gray-100',
-        textSec:'text-gray-400', input:'bg-gray-800 border border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400',
-        btn:'bg-indigo-500 hover:bg-indigo-600 text-white', btnSec:'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700',
-        accent:'text-indigo-400', accentBg:'bg-indigo-500', progress:'bg-indigo-500',
-        card:'bg-gray-900 border border-gray-800', selectedCard:'border-indigo-400 bg-indigo-950/50',
-        chip:'bg-indigo-900/50 text-indigo-300', tabActive:'bg-indigo-500 text-white', tabInactive:'text-gray-400 hover:bg-gray-800',
+        bg: 'bg-gray-950',
+        surface: 'bg-gray-900 border border-gray-800 shadow-sm',
+        text: 'text-gray-100',
+        textSec: 'text-gray-400',
+        input: 'bg-gray-800 border border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400',
+        btn: 'bg-indigo-500 hover:bg-indigo-600 text-white font-semibold',
+        btnSec: 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700',
+        accent: 'text-indigo-400',
+        accentBg: 'bg-indigo-500',
+        progress: 'bg-indigo-500',
+        card: 'bg-gray-900 border border-gray-800',
+        selectedCard: 'border-indigo-400 bg-indigo-950/50',
+        chip: 'bg-indigo-900/50 text-indigo-300',
+        tabActive: 'bg-indigo-500 text-white',
+        tabInactive: 'text-gray-400 hover:bg-gray-800',
       },
     },
     bold: {
@@ -71,19 +89,91 @@ function getVibeClasses(vibe, isDark) {
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const [vibe, setVibe] = useState('minimal');
-  const [theme, setTheme] = useState('light');
-  const [fontSize, setFontSize] = useState('md');
+  const [vibe, setVibe] = useState(() => {
+    return localStorage.getItem('vibe') || 'minimal';
+  });
+  
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'system';
+  });
+  
+  const [fontSize, setFontSize] = useState(() => {
+    return localStorage.getItem('fontSize') || 'md';
+  });
 
-  const isDark = theme === 'dark';
+  // Calculate if dark mode is active
+  const isDark = useMemo(() => {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return theme === 'dark';
+  }, [theme]);
+
+  // Synchronize the 'dark' class on <html> tag
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  // Listen to system preference changes when 'system' is selected
+  useEffect(() => {
+    if (theme !== 'system') return;
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      const root = window.document.documentElement;
+      if (mediaQuery.matches) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
+
+  // Sync to localStorage
+  const updateTheme = useCallback((newTheme) => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  }, []);
+
+  const updateVibe = useCallback((newVibe) => {
+    setVibe(newVibe);
+    localStorage.setItem('vibe', newVibe);
+  }, []);
+
+  const updateFontSize = useCallback((newSize) => {
+    setFontSize(newSize);
+    localStorage.setItem('fontSize', newSize);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    updateTheme(isDark ? 'light' : 'dark');
+  }, [isDark, updateTheme]);
+
   const vc = useMemo(() => getVibeClasses(vibe, isDark), [vibe, isDark]);
   const fontClass = fontSize === 'sm' ? 'text-sm' : fontSize === 'lg' ? 'text-lg' : 'text-base';
 
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
-
   const value = useMemo(
-    () => ({ vibe, setVibe, theme, setTheme, toggleTheme, isDark, vc, fontSize, setFontSize, fontClass }),
-    [vibe, theme, isDark, vc, fontSize, fontClass]
+    () => ({
+      vibe,
+      setVibe: updateVibe,
+      theme,
+      setTheme: updateTheme,
+      toggleTheme,
+      isDark,
+      vc,
+      fontSize,
+      setFontSize: updateFontSize,
+      fontClass,
+    }),
+    [vibe, updateVibe, theme, updateTheme, toggleTheme, isDark, vc, fontSize, updateFontSize, fontClass]
   );
 
   return (

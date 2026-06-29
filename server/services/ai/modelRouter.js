@@ -7,23 +7,16 @@ const MODEL_CHAIN = [
   {
     id: 'primary',
     model: 'gemini-2.5-flash-lite',
-    maxOutputTokens: 4000,
+    maxOutputTokens: 2000,
     temperature: 0.8,
     label: 'Fast',
   },
   {
     id: 'fallback',
     model: 'gemini-2.5-flash',
-    maxOutputTokens: 4000,
+    maxOutputTokens: 1600,
     temperature: 0.8,
     label: 'Balanced',
-  },
-  {
-    id: 'premium',
-    model: 'gemini-3.5-flash',
-    maxOutputTokens: 4000,
-    temperature: 0.8,
-    label: 'Advanced',
   },
 ];
 
