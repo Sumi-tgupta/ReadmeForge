@@ -191,8 +191,8 @@ function trackUsage(userId, model, usage, promptHash) {
     import('../db/connection.js').then(({ getDb }) => {
       const db = getDb();
       db.prepare(`
-        INSERT INTO generations (id, user_id, model, input_tokens, output_tokens, prompt_hash, cached, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
+        INSERT INTO generation_history (id, user_id, model, input_tokens, output_tokens, prompt_hash, builder_type, cached, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'project', 0, CURRENT_TIMESTAMP)
       `).run(
         uuidv4(),
         userId || 'anonymous',

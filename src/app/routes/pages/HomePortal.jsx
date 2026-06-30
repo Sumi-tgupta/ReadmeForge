@@ -5,9 +5,10 @@ import {
   ArrowRight, Github, Sun, Moon, Menu, X, BookOpen, 
   Layers, Zap, Download, Sparkles, Check, ChevronDown, 
   Terminal, Cpu, CheckCircle, Copy, Monitor, FileText, 
-  Settings, ShieldAlert, ShieldCheck
+  Settings, ShieldAlert, ShieldCheck, User, LogOut, LayoutDashboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../../hooks/useAuth';
 
 // Page transitions definition
 const pageVariants = {
@@ -18,7 +19,9 @@ const pageVariants = {
 
 export default function HomePortal() {
   const { theme, setTheme, isDark, toggleTheme } = useTheme();
+  const { user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   
@@ -131,12 +134,91 @@ export default function HomePortal() {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <Link 
-              to="/profile-builder" 
-              className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-550 dark:hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-            >
-              Start Building
-            </Link>
+
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1.5 focus:outline-none"
+                  aria-label="User Profile Dropdown"
+                >
+                  <img src={user.avatarUrl} alt={user.username} className="w-8 h-8 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm" />
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                </button>
+                
+                {dropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+                    <div className={`absolute right-0 mt-2.5 w-48 rounded-2xl border p-2.5 shadow-xl z-20 space-y-1 ${
+                      isDark ? 'bg-gray-900 border-gray-805 text-white' : 'bg-white border-gray-200 text-gray-850'
+                    }`}>
+                      <div className="px-2 py-1.5 border-b border-gray-200 dark:border-gray-800 mb-1.5 text-left">
+                        <p className="text-xs font-bold truncate">{user.displayName || user.username}</p>
+                        <p className="text-[9px] text-gray-500 truncate">@{user.username}</p>
+                      </div>
+                      
+                      <a
+                        href={user.profileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => setDropdownOpen(false)}
+                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-full transition-colors ${
+                          isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-650'
+                        }`}
+                      >
+                        <Github className="w-3.5 h-3.5" /> GitHub Profile
+                      </a>
+                      
+                      <button
+                        onClick={() => { setDropdownOpen(false); navigate('/dashboard'); }}
+                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-full text-left transition-colors ${
+                          isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-650'
+                        }`}
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
+                      </button>
+                      
+                      <button
+                        onClick={() => { setDropdownOpen(false); navigate('/settings'); }}
+                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-full text-left transition-colors ${
+                          isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-650'
+                        }`}
+                      >
+                        <Settings className="w-3.5 h-3.5" /> Settings
+                      </button>
+                      
+                      <div className="border-t border-gray-200 dark:border-gray-800 my-1 pt-1" />
+                      
+                      <button
+                        onClick={() => { setDropdownOpen(false); logout(); }}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-full text-left text-red-500 hover:bg-red-500/5 transition-colors"
+                      >
+                        <LogOut className="w-3.5 h-3.5" /> Log Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => login()}
+                  className={`px-4 py-2 text-xs font-semibold rounded-xl border flex items-center gap-1.5 transition-all duration-200 ${
+                    isDark 
+                      ? 'border-gray-800 bg-gray-900 hover:bg-gray-850 hover:text-white text-gray-300 shadow-md' 
+                      : 'border-gray-200 bg-white hover:bg-gray-50 hover:text-gray-950 text-gray-600 shadow-sm'
+                  }`}
+                >
+                  <Github className="w-4 h-4" /> Continue with GitHub
+                </button>
+                <Link 
+                  to="/profile-builder" 
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-550 dark:hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                >
+                  Start Building
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu trigger */}
@@ -180,14 +262,40 @@ export default function HomePortal() {
                 <Github className="w-4.5 h-4.5" /> GitHub
               </a>
             </nav>
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-              <Link 
-                to="/profile-builder" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl bg-indigo-600 text-white dark:bg-indigo-500"
-              >
-                Start Building
-              </Link>
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
+              {user ? (
+                <>
+                  <Link 
+                    to="/dashboard" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl bg-indigo-600 text-white dark:bg-indigo-500"
+                  >
+                    Dashboard
+                  </Link>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); logout(); }}
+                    className="block text-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-500"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); login(); }}
+                    className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-850 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
+                  >
+                    <Github className="w-4 h-4" /> Continue with GitHub
+                  </button>
+                  <Link 
+                    to="/profile-builder" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-center w-full px-4 py-2.5 text-sm font-semibold rounded-xl bg-indigo-650 text-white dark:bg-indigo-550"
+                  >
+                    Start Building
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

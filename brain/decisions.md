@@ -14,6 +14,20 @@
   - Provides a centralized SQLite database for usage statistics.
 
 ---
+## ADR-002 — Secure Cookie Session Auth with GitHub OAuth and Offline Mock Mode
+- **Date:** 2026-06-29
+- **Status:** Accepted
+- **Context:** The application needs a production-ready authentication system for saving projects and tracking generations. We want to avoid user friction by allowing building before logging in. The system must use secure HTTP-only cookies to avoid security vulnerabilities linked to local/sessionStorage, and must be easy to test without forcing developers to create a real GitHub OAuth application immediately.
+- **Decision:** Implement a secure cookie session manager using UUID-based sessions stored in SQLite. Create a hybrid GitHub OAuth client that falls back to a simulated mock profile flow in development if client credentials are not defined in `.env`. Integrate an event-driven `executeWithAuth` handler to pause builders, authenticate, and automatically resume tasks without progress loss.
+- **Rejected Alternatives:**
+  - *JWT Bearer Tokens in LocalStorage*: Rejected due to susceptibility to XSS attacks and lack of server-side session control.
+  - *Enforcing Auth upfront*: Rejected to minimize onboarding friction and align with premium SaaS trials.
+- **Consequences:**
+  - Improves developer onboarding speed via offline sandbox mode.
+  - Mitigates CSRF via secure state cookie verification.
+  - Secures user data through HTTP-only, SameSite=Lax cookies.
+
+---
 ## Changelog
 ---
 ### [2026-06-29 | SESSION-1 | OPERATION: Create]
@@ -32,4 +46,21 @@
 
 #### REMAINING
 > Add additional ADRs as more design decisions are made (e.g. SQLite database choice, theme system).
+---
+### [2026-06-29 | SESSION-18 | OPERATION: Create]
+
+**File(s) Affected:** `brain/decisions.md`
+**Status:** ✅ Done
+
+#### BEFORE
+> Only ADR-001 was documented.
+
+#### AFTER
+> Added ADR-002 detailing the database-backed secure session cookie implementation and offline Mock OAuth mode.
+
+#### REASON
+> Log architecture patterns for the security and authentication system.
+
+#### REMAINING
+> None.
 ---

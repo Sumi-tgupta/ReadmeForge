@@ -45,12 +45,6 @@ export default function TopBar() {
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
-        <button
-          onClick={() => setSettingsOpen(true)}
-          className={`p-2 rounded-lg transition-all hover:opacity-70 ${vc.text}`}
-        >
-          <Settings className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Sparkles, Loader2, RefreshCw, Copy, ArrowLeft,
-  Sun, Moon, FileText,
+  Sun, Moon, FileText, Save
 } from 'lucide-react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { useGenerator } from '../../hooks/useGenerator';
 import { useToast } from '../../app/providers/ToastProvider';
+import { useAuth } from '../../hooks/useAuth';
+import { authApi } from '../../services/authApi';
 import { parseMarkdownToHtml } from '../../utils/markdown';
 import { copyToClipboard, downloadFile } from '../../utils/clipboard';
 import MarkdownRenderer from '../../components/common/MarkdownRenderer';
@@ -19,6 +21,10 @@ import MarkdownRenderer from '../../components/common/MarkdownRenderer';
 export default function GeneratePreview() {
   const { vc, isDark } = useTheme();
   const { showToast } = useToast();
+  const { executeWithAuth, user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [projectId, setProjectId] = useState(null);
+
   const {
     formData,
     generatedMarkdown,
@@ -34,6 +40,53 @@ export default function GeneratePreview() {
     setGhPreviewDark,
     goBack,
   } = useGenerator();
+
+  // Listen to resume generation event on successful login redirect
+  useEffect(() => {
+    const handleResume = () => {
+      generateReadme();
+    };
+    window.addEventListener('readme_forge_resume_generation', handleResume);
+    return () => window.removeEventListener('readme_forge_resume_generation', handleResume);
+  }, [generateReadme]);
+
+  const handleSave = () => {
+    executeWithAuth(async () => {
+      setIsSaving(true);
+      try {
+        let title = 'My README';
+        if (!projectId) {
+          const userTitle = prompt('Enter a project title:', formData.name ? `${formData.name} Profile` : 'My GitHub Profile');
+          if (userTitle === null) {
+            setIsSaving(false);
+            return; // Cancelled
+          }
+          title = userTitle || 'My GitHub Profile';
+        }
+
+        const projectData = {
+          title,
+          builderType: 'profile',
+          builderStyle: 'wizard',
+          inputData: formData,
+          generatedMarkdown: editMarkdown || generatedMarkdown
+        };
+
+        if (projectId) {
+          await authApi.updateProject(projectId, projectData);
+          showToast('Project updated successfully!');
+        } else {
+          const saved = await authApi.createProject(projectData);
+          setProjectId(saved.id);
+          showToast('Project saved successfully!');
+        }
+      } catch (err) {
+        showToast('Failed to save project');
+      } finally {
+        setIsSaving(false);
+      }
+    }, 'project save');
+  };
 
   const mdToRender = editMarkdown || generatedMarkdown;
   const renderedHtml = parseMarkdownToHtml(mdToRender);
@@ -124,7 +177,7 @@ export default function GeneratePreview() {
         <div className="space-y-3 mb-6">
           {!generatedMarkdown ? (
             <button
-              onClick={generateReadme}
+              onClick={() => executeWithAuth(generateReadme, 'README generation')}
               disabled={isGenerating}
               className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-base font-semibold transition-all active:scale-95 ${vc.btn} ${isGenerating ? 'opacity-70 cursor-wait' : ''}`}
             >
@@ -132,34 +185,45 @@ export default function GeneratePreview() {
               {isGenerating ? 'Crafting your README...' : 'Generate README'}
             </button>
           ) : (
-            <div className="flex gap-3">
-              <button
-                onClick={generateReadme}
-                disabled={isGenerating}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btnSec} ${isGenerating ? 'opacity-70 cursor-wait' : ''}`}
-              >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                Regenerate
-              </button>
-              <button
-                onClick={copyMarkdown}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btn}`}
-              >
-                <Copy className="w-4 h-4" /> Copy Markdown
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => executeWithAuth(generateReadme, 'README generation')}
+                  disabled={isGenerating}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btnSec} ${isGenerating ? 'opacity-70 cursor-wait' : ''}`}
+                >
+                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  Regenerate
+                </button>
+                <button
+                  onClick={copyMarkdown}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btn}`}
+                >
+                  <Copy className="w-4 h-4" /> Copy Markdown
+                </button>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 border ${
+                    isDark ? 'border-gray-800 bg-gray-900 text-gray-300' : 'border-gray-250 bg-white text-gray-700'
+                  }`}
+                >
+                  <Save className="w-4 h-4 text-indigo-500" />
+                  {isSaving ? 'Saving...' : projectId ? 'Update Saved Project' : 'Save Project'}
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btnSec}`}
+                >
+                  Download README.md
+                </button>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Download button */}
-        {generatedMarkdown && (
-          <button
-            onClick={handleDownload}
-            className={`w-full mb-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95 ${vc.btnSec}`}
-          >
-            Download README.md
-          </button>
-        )}
 
         {/* Inline editor */}
         {generatedMarkdown && (

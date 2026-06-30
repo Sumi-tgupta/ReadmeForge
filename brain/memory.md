@@ -1,6 +1,6 @@
 # 🧠 Project Memory
 
-## Last Updated: 2026-06-29
+## Last Updated: 2026-06-30
 
 ---
 
@@ -12,7 +12,9 @@
 - Lazy routes mapping for Homepage Portal, Profile Builder, Project Builder, Settings Diagnostics, and NotFound views — 2026-06-29
 - Repository scanner service & project README generator backend endpoint — 2026-06-29
 - Enhanced ThemeProvider supporting system preference theme resolving, localStorage, and document body class list sync — 2026-06-29
+- Conversational Builder style interface with session recovery, progressive wizard question engine, and repository scanner logs — 2026-06-29
 - Configured light mode warm cream background (#E2DFD2) and glassmorphic translucent navigation bar on homepage portal — 2026-06-29
+- Authentication System + GitHub OAuth + User Dashboard + Secure Generation Flow — 2026-06-29
 
 ---
 
@@ -178,4 +180,114 @@
 - Changed:
   - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
   - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
-- Next: Await user verification.
+- Next: Await server shutdown request.
+
+### Session 16 — 2026-06-29
+- Did: Terminated running background development server tasks `task-48` (Vite backend proxy on port 3001) and `task-50` (Vite frontend server on port 5173).
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Completed task.
+
+### Session 17 — 2026-06-29
+- Did: Introduced the new "Conversation" builder style, implementing a complete custom guided guided wizard engine and offline components in `src/components/conversation/`. Supported session recovery, resume/discard dialogs, custom inline widgets, repository crawler terminal logs within chat bubble, and settings toggles for interface styles. Wired path configurations and automatic switches to render conversational builder.
+- Changed:
+  - [src/components/conversation/validators.js](file:///D:/CODE/github_readme_builder/src/components/conversation/validators.js)
+  - [src/components/conversation/questionRegistry.js](file:///D:/CODE/github_readme_builder/src/components/conversation/questionRegistry.js)
+  - [src/components/conversation/conversationCache.js](file:///D:/CODE/github_readme_builder/src/components/conversation/conversationCache.js)
+  - [src/components/conversation/conversationEngine.js](file:///D:/CODE/github_readme_builder/src/components/conversation/conversationEngine.js)
+  - [src/components/conversation/conversationStore.js](file:///D:/CODE/github_readme_builder/src/components/conversation/conversationStore.js)
+  - [src/components/conversation/TypingIndicator.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/TypingIndicator.jsx)
+  - [src/components/conversation/ProgressBar.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ProgressBar.jsx)
+  - [src/components/conversation/SuggestionCards.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/SuggestionCards.jsx)
+  - [src/components/conversation/ResumeDialog.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ResumeDialog.jsx)
+  - [src/components/conversation/ConversationBubble.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationBubble.jsx)
+  - [src/components/conversation/ConversationInput.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationInput.jsx)
+  - [src/components/conversation/QuestionRenderer.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/QuestionRenderer.jsx)
+  - [src/components/conversation/ReviewScreen.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ReviewScreen.jsx)
+  - [src/components/conversation/ConversationHeader.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationHeader.jsx)
+  - [src/components/conversation/ConversationSidebar.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationSidebar.jsx)
+  - [src/components/conversation/ConversationMessages.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationMessages.jsx)
+  - [src/components/conversation/ConversationLayout.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationLayout.jsx)
+  - [src/app/providers/ThemeProvider.jsx](file:///D:/CODE/github_readme_builder/src/app/providers/ThemeProvider.jsx)
+  - [src/app/routes/pages/Settings.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Settings.jsx)
+  - [src/app/App.jsx](file:///D:/CODE/github_readme_builder/src/app/App.jsx)
+  - [src/app/routes/pages/ProfileBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProfileBuilder.jsx)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+  - [brain/architecture.md](file:///D:/CODE/github_readme_builder/brain/architecture.md)
+- Next: Await user testing.
+
+### Session 18 — 2026-06-29
+- Did: Implemented the GitHub OAuth authentication system, secure HTTP-only cookies session manager, user dashboard and saved projects listing routes, and automated action resumption listeners. Integrated SQLite tables for users and sessions, secure cookies refresh cycles, and offline development mock bypass.
+- Changed:
+  - [server/db/schema.sql](file:///D:/CODE/github_readme_builder/server/db/schema.sql)
+  - [server/sessionManager.js](file:///D:/CODE/github_readme_builder/server/sessionManager.js)
+  - [server/auth/githubOAuth.js](file:///D:/CODE/github_readme_builder/server/auth/githubOAuth.js)
+  - [server/routes/auth.js](file:///D:/CODE/github_readme_builder/server/routes/auth.js)
+  - [server/routes/projects.js](file:///D:/CODE/github_readme_builder/server/routes/projects.js)
+  - [server/middleware/auth.js](file:///D:/CODE/github_readme_builder/server/middleware/auth.js)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [server/routes/user.js](file:///D:/CODE/github_readme_builder/server/routes/user.js)
+  - [src/services/authApi.js](file:///D:/CODE/github_readme_builder/src/services/authApi.js)
+  - [src/features/auth/AuthContext.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/AuthContext.jsx)
+  - [src/features/auth/AuthProvider.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/AuthProvider.jsx)
+  - [src/features/auth/LoginModal.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/LoginModal.jsx)
+  - [src/features/auth/GitHubButton.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/GitHubButton.jsx)
+  - [src/features/auth/ProtectedRoute.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/ProtectedRoute.jsx)
+  - [src/hooks/useAuth.js](file:///D:/CODE/github_readme_builder/src/hooks/useAuth.js)
+  - [src/hooks/useProjects.js](file:///D:/CODE/github_readme_builder/src/hooks/useProjects.js)
+  - [src/app/routes/pages/Dashboard.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Dashboard.jsx)
+  - [src/app/routes/pages/Projects.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Projects.jsx)
+  - [src/app/App.jsx](file:///D:/CODE/github_readme_builder/src/app/App.jsx)
+  - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
+  - [src/features/generator/GeneratePreview.jsx](file:///D:/CODE/github_readme_builder/src/features/generator/GeneratePreview.jsx)
+  - [src/components/conversation/ReviewScreen.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ReviewScreen.jsx)
+  - [src/components/editor/SettingsDrawer.jsx](file:///D:/CODE/github_readme_builder/src/components/editor/SettingsDrawer.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+  - [brain/decisions.md](file:///D:/CODE/github_readme_builder/brain/decisions.md)
+- Next: Fully operational, await user verification.
+
+### Session 19 — 2026-06-29
+- Did: Removed the settings drawer gear toggle from the wizard header. Updated default state fallbacks for builder vibe (github) and font size (lg) in the theme provider. Stripped the settings diagnostics page of API cache statistics cards, model list sections, guides, and header emojis, and reformatted it into a centered layout.
+- Changed:
+  - [src/app/providers/ThemeProvider.jsx](file:///D:/CODE/github_readme_builder/src/app/providers/ThemeProvider.jsx)
+  - [src/components/editor/TopBar.jsx](file:///D:/CODE/github_readme_builder/src/components/editor/TopBar.jsx)
+  - [src/app/routes/pages/Settings.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Settings.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Completed tasks.
+
+### Session 20 — 2026-06-29
+- Did: Terminated both background development tasks (Vite frontend dev server and Express backend server).
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Done.
+---
+
+### Session 21 — 2026-06-30
+- Did: Answered user's query about OAuth redirect URI and production setup vs. West/Render environment deployment.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 22 — 2026-06-30
+- Did: Clarified the requirement of having two separate GitHub OAuth app configurations for local and production setups.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 23 — 2026-06-30
+- Did: Provided the exact inputs for registering both Local and Production GitHub OAuth applications.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 24 — 2026-06-30
+- Did: Started frontend and backend development servers as background tasks in local environment.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Done.
+---

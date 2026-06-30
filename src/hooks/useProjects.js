@@ -1,9 +1,8 @@
 /**
- * Hook for managing saved projects.
- * Phase 1: In-memory storage.
- * Phase 4: Wired to /api/projects endpoints.
+ * Hook for managing saved projects via backend APIs.
  */
 import { useState, useCallback } from 'react';
+import { authApi } from '../services/authApi';
 
 export function useProjects() {
   const [projects, setProjects] = useState([]);
@@ -12,41 +11,52 @@ export function useProjects() {
   const loadProjects = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Phase 4: const data = await api.get('/projects');
-      // setProjects(data);
+      const data = await authApi.getProjects();
+      setProjects(data);
+      return data;
+    } catch (_) {
+      setProjects([]);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const saveProject = useCallback(async (project) => {
-    const newProject = {
-      id: crypto.randomUUID(),
-      ...project,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    setProjects(prev => [newProject, ...prev]);
-    return newProject;
-  }, []);
+    setIsLoading(true);
+    try {
+      let result;
+      if (project.id) {
+        result = await authApi.updateProject(project.id, project);
+      } else {
+        result = await authApi.createProject(project);
+      }
+      await loadProjects();
+      return result;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadProjects]);
 
   const deleteProject = useCallback(async (id) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-  }, []);
+    setIsLoading(true);
+    try {
+      await authApi.deleteProject(id);
+      await loadProjects();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadProjects]);
 
   const duplicateProject = useCallback(async (id) => {
-    const original = projects.find(p => p.id === id);
-    if (!original) return null;
-    const duplicate = {
-      ...original,
-      id: crypto.randomUUID(),
-      title: `${original.title} (Copy)`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    setProjects(prev => [duplicate, ...prev]);
-    return duplicate;
-  }, [projects]);
+    setIsLoading(true);
+    try {
+      const duplicate = await authApi.duplicateProject(id);
+      await loadProjects();
+      return duplicate;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadProjects]);
 
   return {
     projects,

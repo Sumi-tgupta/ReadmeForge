@@ -90,7 +90,7 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [vibe, setVibe] = useState(() => {
-    return localStorage.getItem('vibe') || 'minimal';
+    return localStorage.getItem('vibe') || 'github';
   });
   
   const [theme, setTheme] = useState(() => {
@@ -98,7 +98,11 @@ export function ThemeProvider({ children }) {
   });
   
   const [fontSize, setFontSize] = useState(() => {
-    return localStorage.getItem('fontSize') || 'md';
+    return localStorage.getItem('fontSize') || 'lg';
+  });
+
+  const [builderStyle, setBuilderStyle] = useState(() => {
+    return localStorage.getItem('builderStyle') || 'classic'; // 'classic' or 'conversation'
   });
 
   // Calculate if dark mode is active
@@ -153,6 +157,11 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('fontSize', newSize);
   }, []);
 
+  const updateBuilderStyle = useCallback((newStyle) => {
+    setBuilderStyle(newStyle);
+    localStorage.setItem('builderStyle', newStyle);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     updateTheme(isDark ? 'light' : 'dark');
   }, [isDark, updateTheme]);
@@ -172,8 +181,10 @@ export function ThemeProvider({ children }) {
       fontSize,
       setFontSize: updateFontSize,
       fontClass,
+      builderStyle,
+      setBuilderStyle: updateBuilderStyle,
     }),
-    [vibe, updateVibe, theme, updateTheme, toggleTheme, isDark, vc, fontSize, updateFontSize, fontClass]
+    [vibe, updateVibe, theme, updateTheme, toggleTheme, isDark, vc, fontSize, updateFontSize, fontClass, builderStyle, updateBuilderStyle]
   );
 
   return (

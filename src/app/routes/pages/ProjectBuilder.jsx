@@ -6,9 +6,10 @@ import {
   Download, Edit2, Eye, FileText, Check, AlertCircle, RefreshCw,
   Loader2, CircleDot
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MarkdownRenderer from '../../../components/common/MarkdownRenderer';
+import ConversationLayout from '../../../components/conversation/ConversationLayout';
 
 // Page transitions definition
 const pageVariants = {
@@ -29,9 +30,16 @@ const scanStages = [
 ];
 
 export default function ProjectBuilder() {
-  const { vc, isDark } = useTheme();
+  const { vc, isDark, builderStyle } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isChatRoute = location.pathname.endsWith('/chat') || builderStyle === 'conversation';
+
+  if (isChatRoute) {
+    return <ConversationLayout builderType="project" />;
+  }
 
   // Inputs
   const [repoUrl, setRepoUrl] = useState('');

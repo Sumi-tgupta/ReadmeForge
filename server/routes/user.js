@@ -50,11 +50,11 @@ router.get('/usage', (req, res) => {
   const db = getDb();
 
   const total = db.prepare(
-    'SELECT COUNT(*) as count, SUM(input_tokens) as inputTokens, SUM(output_tokens) as outputTokens FROM generations WHERE user_id = ?'
+    'SELECT COUNT(*) as count, SUM(input_tokens) as inputTokens, SUM(output_tokens) as outputTokens FROM generation_history WHERE user_id = ?'
   ).get(req.user.id);
 
   const today = db.prepare(
-    "SELECT COUNT(*) as count FROM generations WHERE user_id = ? AND created_at >= date('now')"
+    "SELECT COUNT(*) as count FROM generation_history WHERE user_id = ? AND created_at >= date('now')"
   ).get(req.user.id);
 
   res.json({

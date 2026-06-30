@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTheme } from '../../app/providers/ThemeProvider';
-import { useAuth } from '../../app/providers/AuthProvider';
+import { useAuth } from '../../hooks/useAuth';
 import { useGenerator } from '../../hooks/useGenerator';
 
 /**

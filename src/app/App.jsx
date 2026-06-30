@@ -2,7 +2,8 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { ToastProvider } from './providers/ToastProvider';
-import { AuthProvider } from './providers/AuthProvider';
+import { AuthProvider } from '../features/auth/AuthProvider';
+import ProtectedRoute from '../features/auth/ProtectedRoute';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 
 // Lazy loading pages for code splitting & performance optimization
@@ -10,6 +11,8 @@ const HomePortal = lazy(() => import('./routes/pages/HomePortal'));
 const ProfileBuilder = lazy(() => import('./routes/pages/ProfileBuilder'));
 const ProjectBuilder = lazy(() => import('./routes/pages/ProjectBuilder'));
 const Settings = lazy(() => import('./routes/pages/Settings'));
+const Dashboard = lazy(() => import('./routes/pages/Dashboard'));
+const Projects = lazy(() => import('./routes/pages/Projects'));
 const NotFound = lazy(() => import('./routes/pages/NotFound'));
 
 /**
@@ -43,8 +46,12 @@ export default function App() {
                 <Routes>
                   <Route path="/" element={<HomePortal />} />
                   <Route path="/profile-builder" element={<ProfileBuilder />} />
+                  <Route path="/profile-builder/chat" element={<ProfileBuilder />} />
                   <Route path="/project-builder" element={<ProjectBuilder />} />
-                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/project-builder/chat" element={<ProjectBuilder />} />
+                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/my-projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                   <Route path="/not-found" element={<NotFound />} />
                   <Route path="*" element={<Navigate to="/not-found" replace />} />
                 </Routes>

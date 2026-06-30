@@ -8,6 +8,8 @@ import StepContainer from '../../../components/editor/StepContainer';
 import { GeneratorContext, useGeneratorState } from '../../../hooks/useGenerator';
 import { useGenerator } from '../../../hooks/useGenerator';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+import ConversationLayout from '../../../components/conversation/ConversationLayout';
 
 /**
  * Page transitions definition
@@ -37,8 +39,15 @@ function GeneratorProvider({ children }) {
  * Inner editor content — consumes generator context.
  */
 function EditorPageContent() {
-  const { vc } = useTheme();
+  const { vc, builderStyle } = useTheme();
   const { currentStep } = useGenerator();
+  const location = useLocation();
+
+  const isChatRoute = location.pathname.endsWith('/chat') || builderStyle === 'conversation';
+
+  if (isChatRoute) {
+    return <ConversationLayout builderType="profile" />;
+  }
 
   const isGenerateStep = currentStep === 'generate';
 
