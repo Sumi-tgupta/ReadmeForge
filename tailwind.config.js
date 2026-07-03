@@ -7,6 +7,31 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        gray: {
+          150: '#f1f3f5',
+          250: '#dcdfe4',
+          350: '#babbc2',
+          450: '#818894',
+          650: '#4b5260',
+          850: '#1f242e',
+        },
+        indigo: {
+          450: '#5a5df0',
+          550: '#544df1',
+          650: '#473eeb',
+        },
+        purple: {
+          650: '#852ae7',
+        },
+        green: {
+          450: '#22b14c',
+        },
+        emerald: {
+          250: '#86efac',
+          450: '#22c38e',
+        },
+      },
       animation: {
         'shimmer': 'shimmer 2s infinite linear',
         'slide-up': 'slideUp 0.3s ease-out',

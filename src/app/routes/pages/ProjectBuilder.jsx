@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MarkdownRenderer from '../../../components/common/MarkdownRenderer';
 import ConversationLayout from '../../../components/conversation/ConversationLayout';
+import useSEO from '../../../hooks/useSEO';
 
 // Page transitions definition
 const pageVariants = {
@@ -34,6 +35,11 @@ export default function ProjectBuilder() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useSEO({
+    title: 'Project README Intelligence',
+    description: 'Import a GitHub repository URL and automatically generate high-quality tech stack documentation, install instructions, and code diagrams.'
+  });
 
   const isChatRoute = location.pathname.endsWith('/chat') || builderStyle === 'conversation';
 

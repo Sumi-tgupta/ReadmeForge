@@ -89,10 +89,10 @@ router.get('/callback', async (req, res, next) => {
     const profile = await githubOAuth.getGithubProfile(token);
 
     // Create / Update User record
-    const user = UserModel.upsertGithubUser(profile);
+    const user = await UserModel.upsertGithubUser(profile);
 
     // Create session cookie
-    sessionManager.createSession(user.id, res);
+    await sessionManager.createSession(user.id, res);
 
     // Redirect user browser back to frontend
     const clientOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
@@ -107,36 +107,48 @@ router.get('/callback', async (req, res, next) => {
  * GET /api/auth/me
  * Load current authenticated user profile (frictionless, returns null if logged out)
  */
-router.get('/me', (req, res) => {
-  const session = sessionManager.getSession(req);
-  if (!session) {
-    return res.json({ user: null });
-  }
+router.get('/me', async (req, res, next) => {
+  try {
+    const session = await sessionManager.getSession(req);
+    if (!session) {
+      return res.json({ user: null });
+    }
 
-  // Extend session duration on active profile loads
-  sessionManager.refreshSession(session.id, res);
-  res.json({ user: session.user });
+    // Extend session duration on active profile loads
+    await sessionManager.refreshSession(session.id, res);
+    res.json({ user: session.user });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * POST /api/auth/logout
  * Terminate active session and clear cookie
  */
-router.post('/logout', (req, res) => {
-  sessionManager.destroySession(req, res);
-  res.json({ success: true });
+router.post('/logout', async (req, res, next) => {
+  try {
+    await sessionManager.destroySession(req, res);
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * GET /api/auth/status
  * Load login status
  */
-router.get('/status', (req, res) => {
-  const session = sessionManager.getSession(req);
-  res.json({
-    authenticated: !!session,
-    user: session ? session.user : null
-  });
+router.get('/status', async (req, res, next) => {
+  try {
+    const session = await sessionManager.getSession(req);
+    res.json({
+      authenticated: !!session,
+      user: session ? session.user : null
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

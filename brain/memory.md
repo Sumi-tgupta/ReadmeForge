@@ -1,6 +1,6 @@
 # 🧠 Project Memory
 
-## Last Updated: 2026-06-30
+## Last Updated: 2026-07-03
 
 ---
 
@@ -290,4 +290,238 @@
 - Changed:
   - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
 - Next: Done.
+---
+
+### Session 25 — 2026-06-30
+- Did: Explained how to make production OAuth function with Vercel rewrites and Render backend configurations using Environment Variables.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 26 — 2026-06-30
+- Did: Diagnosed and explained the "redirect_uri mismatch" GitHub OAuth error in production.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 27 — 2026-06-30
+- Did: Explained the "Dangerous site" Google Safe Browsing warning that triggers on new free Vercel/Render subdomains and provided bypass/resolution guidelines.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 28 — 2026-06-30
+- Did: Explained the CSRF token mismatch error caused by domain boundary differences between Vercel and Render cookies and provided the correct proxied redirect path configuration fix.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 29 — 2026-06-30
+- Did: Created checkpoint and synced brain state, documenting ADR-003 for Cross-Origin CSRF validation routing decisions.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+  - [brain/decisions.md](file:///D:/CODE/github_readme_builder/brain/decisions.md)
+- Next: Await user's confirmation or next steps.
+---
+
+### Session 30 — 2026-06-30
+- Did: Performed a major production sweep. Configured featureFlags.js, appConfig.js, logger.js, and analytics.js. Upgraded ToastProvider.jsx to a multi-toast queue. Created Skeleton.jsx and FeedbackStates.jsx primitives. Added key-navigated CommandPalette.jsx (Ctrl+K) globally. Created sitemap.xml, robots.txt, and manifest.json for PWA/SEO optimizations. Integrated Vitest and Playwright configurations with sample component testing. Wrote Architecture.md, Contributing.md, Deployment.md, FolderStructure.md, and DeveloperGuide.md documentation files.
+- Changed:
+  - [src/app/config/featureFlags.js](file:///D:/CODE/github_readme_builder/src/app/config/featureFlags.js)
+  - [src/app/config/appConfig.js](file:///D:/CODE/github_readme_builder/src/app/config/appConfig.js)
+  - [src/utils/logger.js](file:///D:/CODE/github_readme_builder/src/utils/logger.js)
+  - [src/services/analytics.js](file:///D:/CODE/github_readme_builder/src/services/analytics.js)
+  - [src/app/providers/ToastProvider.jsx](file:///D:/CODE/github_readme_builder/src/app/providers/ToastProvider.jsx)
+  - [src/components/common/Skeleton.jsx](file:///D:/CODE/github_readme_builder/src/components/common/Skeleton.jsx)
+  - [src/components/common/FeedbackStates.jsx](file:///D:/CODE/github_readme_builder/src/components/common/FeedbackStates.jsx)
+  - [src/components/common/CommandPalette.jsx](file:///D:/CODE/github_readme_builder/src/components/common/CommandPalette.jsx)
+  - [src/app/App.jsx](file:///D:/CODE/github_readme_builder/src/app/App.jsx)
+  - [src/hooks/useSEO.js](file:///D:/CODE/github_readme_builder/src/hooks/useSEO.js)
+  - [public/robots.txt](file:///D:/CODE/github_readme_builder/public/robots.txt)
+  - [public/sitemap.xml](file:///D:/CODE/github_readme_builder/public/sitemap.xml)
+  - [public/manifest.json](file:///D:/CODE/github_readme_builder/public/manifest.json)
+  - [index.html](file:///D:/CODE/github_readme_builder/index.html)
+  - [vitest.config.js](file:///D:/CODE/github_readme_builder/vitest.config.js)
+  - [tests/setup.js](file:///D:/CODE/github_readme_builder/tests/setup.js)
+  - [tests/common/InputField.test.jsx](file:///D:/CODE/github_readme_builder/tests/common/InputField.test.jsx)
+  - [playwright.config.js](file:///D:/CODE/github_readme_builder/playwright.config.js)
+  - [docs/Architecture.md](file:///D:/CODE/github_readme_builder/docs/Architecture.md)
+  - [docs/Contributing.md](file:///D:/CODE/github_readme_builder/docs/Contributing.md)
+  - [docs/Deployment.md](file:///D:/CODE/github_readme_builder/docs/Deployment.md)
+  - [docs/FolderStructure.md](file:///D:/CODE/github_readme_builder/docs/FolderStructure.md)
+  - [docs/DeveloperGuide.md](file:///D:/CODE/github_readme_builder/docs/DeveloperGuide.md)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Confirm the successful production build checks.
+---
+
+### Session 31 — 2026-06-30
+- Did: Executed production build command `npm run build` which successfully bundled the React SPA and split assets.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Done. Ready for deployment launch.
+---
+
+### Session 32 — 2026-06-30
+- Did: Updated the root README.md documentation file based on the full project features, including dual builders, repository intelligence scanner, command palette, OAuth secure cookies, Vitest/Playwright tests, and custom docs subdirectory mapping.
+- Changed:
+  - [README.md](file:///D:/CODE/github_readme_builder/README.md)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Completed tasks.
+---
+
+### Session 33 — 2026-06-30
+- Did: Implemented mobile responsive improvements in GeneratePreview.jsx (collapsible/stackable preview layout) and TopBar.jsx (hidden progress track on mobile). Integrated backend credit checks and credit deductions in generate.js and generateProject.js endpoints. Created DatabaseSetup.md detailing persistent volume configurations and PostgreSQL migration setups.
+- Changed:
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [src/features/generator/GeneratePreview.jsx](file:///D:/CODE/github_readme_builder/src/features/generator/GeneratePreview.jsx)
+  - [src/components/editor/TopBar.jsx](file:///D:/CODE/github_readme_builder/src/components/editor/TopBar.jsx)
+  - [docs/DatabaseSetup.md](file:///D:/CODE/github_readme_builder/docs/DatabaseSetup.md)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Confirm successful compilation.
+---
+
+### Session 34 — 2026-06-30
+- Did: Verified and built the production bundles post-responsiveness improvements. The Vite build completed successfully in 29.67s.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Done. Launch-ready.
+---
+
+### Session 35 — 2026-06-30
+- Did: Concluded all development, optimization, mobile responsiveness sweeps, database guides, and documentation tasks. Checked in session memory.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Stop running servers.
+---
+
+### Session 36 — 2026-06-30
+- Did: Stopped the running background tasks for the frontend and backend servers (task-36 and task-38).
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Done. All development processes and dev servers terminated.
+---
+
+### Session 37 — 2026-07-03
+- Did: Started the frontend and backend development servers in the background.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 38 — 2026-07-03
+- Did: Fixed multiple bugs: resolved Light Theme Start Building button and tagline gradient visibility by registering missing custom color ranges in tailwind.config.js, resolved dark theme GitHub UI text contrast using explicit color overrides, implemented sessionStorage persistence for profile builder inputs to survive OAuth login redirects, fixed missing updated_at column in SQLite database, and clarified SQLite-based stack architecture.
+- Changed:
+  - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
+  - [tailwind.config.js](file:///D:/CODE/github_readme_builder/tailwind.config.js)
+  - [src/index.css](file:///D:/CODE/github_readme_builder/src/index.css)
+  - [src/hooks/useGenerator.js](file:///D:/CODE/github_readme_builder/src/hooks/useGenerator.js)
+  - [server/db/schema.sql](file:///D:/CODE/github_readme_builder/server/db/schema.sql)
+  - [server/db/connection.js](file:///D:/CODE/github_readme_builder/server/db/connection.js)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user testing.
+---
+
+### Session 39 — 2026-07-03
+- Did: Presented the clean workspace folder structure layout to the user, excluding dependency folders (node_modules, .git).
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 40 — 2026-07-03
+- Did: Provided the complete, exhaustive recursive folder and file structure of the workspace (excluding node_modules, .git, .gemini, dist).
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 41 — 2026-07-03
+- Did: Reviewed the completeness status of core application features for the user.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 42 — 2026-07-03
+- Did: Performed a complete backend architecture audit and wrote a comprehensive migration plan from SQLite to Supabase.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user approval on the Supabase Migration Plan.
+---
+
+### Session 43 — 2026-07-03
+- Did: Executed the SQLite-to-Supabase migration plan. Installed @supabase/supabase-js, refactored connection.js, sessionManager.js, auth middleware, and models (User, Project, repositoryCache) to run on Supabase asynchronously. Created a new GenerationModel to encapsulate tokens and usage log history. Cleaned all routes to remove direct/inline SQLite calls. Removed SQLite-only reinit.js. Verified clean server boot.
+- Changed:
+  - [server/db/connection.js](file:///D:/CODE/github_readme_builder/server/db/connection.js)
+  - [server/models/Generation.js](file:///D:/CODE/github_readme_builder/server/models/Generation.js)
+  - [server/models/User.js](file:///D:/CODE/github_readme_builder/server/models/User.js)
+  - [server/models/Project.js](file:///D:/CODE/github_readme_builder/server/models/Project.js)
+  - [server/models/repositoryCache.js](file:///D:/CODE/github_readme_builder/server/models/repositoryCache.js)
+  - [server/sessionManager.js](file:///D:/CODE/github_readme_builder/server/sessionManager.js)
+  - [server/middleware/auth.js](file:///D:/CODE/github_readme_builder/server/middleware/auth.js)
+  - [server/routes/auth.js](file:///D:/CODE/github_readme_builder/server/routes/auth.js)
+  - [server/routes/projects.js](file:///D:/CODE/github_readme_builder/server/routes/projects.js)
+  - [server/routes/user.js](file:///D:/CODE/github_readme_builder/server/routes/user.js)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [brain/decisions.md](file:///D:/CODE/github_readme_builder/brain/decisions.md)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user verification.
+---
+
+### Session 44 — 2026-07-03
+- Did: Provided the updated full project directory structure to the user following the Supabase database migration.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 45 — 2026-07-03
+- Did: Converted the SQLite database schema in server/db/schema.sql into a fully compliant PostgreSQL / Supabase schema (featuring UUID primary keys, TIMESTAMPTZ datetimes, CHECK constraints, foreign keys, triggers for updated_at, and Row Level Security policies). Created ConversationSession and UserSettings models. Wrote verification script server/db/verify_tables.js and ran it to verify Supabase connectivity.
+- Changed:
+  - [server/db/schema.sql](file:///D:/CODE/github_readme_builder/server/db/schema.sql)
+  - [server/db/connection.js](file:///D:/CODE/github_readme_builder/server/db/connection.js)
+  - [server/models/ConversationSession.js](file:///D:/CODE/github_readme_builder/server/models/ConversationSession.js)
+  - [server/models/UserSettings.js](file:///D:/CODE/github_readme_builder/server/models/UserSettings.js)
+  - [server/db/verify_tables.js](file:///D:/CODE/github_readme_builder/server/db/verify_tables.js)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user pasting the schema in Supabase SQL Editor and checking connection again.
+---
+
+### Session 46 — 2026-07-03
+- Did: Regenerated the PostgreSQL/Supabase schema.sql file using pgcrypto extension for gen_random_uuid(), enabled Row Level Security on ALL tables (including repository_cache), added complete RLS policies with WITH CHECK clauses for all tables, and verified backend model compatibility.
+- Changed:
+  - [server/db/schema.sql](file:///D:/CODE/github_readme_builder/server/db/schema.sql)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user verification of the new schema execution on Supabase SQL Editor.
+---
+
+### Session 47 — 2026-07-03
+- Did: Executed the verify_tables.js script and verified that all 7 PostgreSQL tables (users, projects, sessions, generation_history, repository_cache, conversation_sessions, user_settings) are successfully created and reachable in the live Supabase project.
+- Changed:
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
+---
+
+### Session 48 — 2026-07-03
+- Did: Addressed various visual bugs, unified logo styling across the app, and resolved credit-update issues:
+  - Unified the project logo styling across Dashboard sidebar, TopBar editor, and LoginModal using the Terminal gradient design.
+  - Removed "Settings" / "System Settings" from the home profile dropdown, the dashboard sidebar menu, and redundant fetch calls.
+  - Awaited cache-check promise in generateProject.js, and added credit deduction and usage tracking on cache hits to guarantee every creation uses 1 credit.
+  - Fixed "View Demo" button on HomePortal by adding a simulation reset state counter.
+- Changed:
+  - [src/app/routes/pages/Dashboard.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Dashboard.jsx)
+  - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
+  - [src/components/editor/TopBar.jsx](file:///D:/CODE/github_readme_builder/src/components/editor/TopBar.jsx)
+  - [src/features/auth/LoginModal.jsx](file:///D:/CODE/github_readme_builder/src/features/auth/LoginModal.jsx)
+  - [src/services/authApi.js](file:///D:/CODE/github_readme_builder/src/services/authApi.js)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user requests.
 ---

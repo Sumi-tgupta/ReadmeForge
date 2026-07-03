@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../../providers/ThemeProvider';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
+import useSEO from '../../../hooks/useSEO';
 
 // Page transitions definition
 const pageVariants = {
@@ -13,6 +14,12 @@ const pageVariants = {
 
 export default function NotFound() {
   const { vc } = useTheme();
+
+  useSEO({
+    title: '404 Page Not Found',
+    description: 'This page route was not found in the workspace settings.',
+    robots: 'noindex, nofollow'
+  });
 
   return (
     <motion.div

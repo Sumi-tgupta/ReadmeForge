@@ -8,6 +8,8 @@ import { hashKey, getCached, setCache, getCacheStats } from '../services/ai/cach
 import { buildOptimizedPrompt } from '../services/ai/promptOptimizer.js';
 import { getModelChain, recordFailure, recordSuccess, getModelHealth } from '../services/ai/modelRouter.js';
 import { getClientId, acquireSlot, releaseSlot } from '../services/ai/requestQueue.js';
+import { UserModel } from '../models/User.js';
+import { GenerationModel } from '../models/Generation.js';
 
 const router = Router();
 
@@ -31,6 +33,22 @@ const generateLimiter = rateLimit({
 router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
   const clientId = getClientId(req);
 
+  // --- Credits Check ---
+  if (req.user) {
+    console.log('[Generate] Credits check for user:', req.user.id);
+    try {
+      const user = await UserModel.getCreditsAndPlan(req.user.id);
+      console.log('[Generate] User plan details:', user);
+      if (user && user.plan !== 'premium' && user.credits <= 0) {
+        return res.status(403).json({ error: 'No credits remaining. Please upgrade your plan or wait for reset.' });
+      }
+    } catch (err) {
+      console.error('[Generate] Credits check failed:', err.message);
+    }
+  } else {
+    console.log('[Generate] No user session found (anonymous request)');
+  }
+
   try {
     const { formData, selectedSections } = req.body;
 
@@ -53,6 +71,23 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
       const cachedMarkdown = getCached(cacheHash);
       if (cachedMarkdown) {
         console.log(`[Generate] Cache hit for hash ${cacheHash.slice(0, 12)}...`);
+        
+        // Deduct credit for cached profile generation
+        if (req.user) {
+          try {
+            await UserModel.deductCredit(req.user.id);
+          } catch (deductErr) {
+            console.error('[Generate] Credit deduction failed on cache hit:', deductErr.message);
+          }
+        }
+
+        // Track usage for cached profile generation
+        try {
+          await trackUsage(req.user?.id, 'cache', { inputTokens: 0, outputTokens: 0 }, cacheHash);
+        } catch (trackErr) {
+          console.error('[Generate] Usage tracking failed on cache hit:', trackErr.message);
+        }
+
         return res.json({
           markdown: cachedMarkdown,
           usage: { inputTokens: 0, outputTokens: 0, model: 'cache', cached: true },
@@ -118,6 +153,17 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
       // --- Cache result ---
       setCache(cacheHash, result.text);
 
+      // --- Deduct credit ---
+      if (req.user) {
+        console.log('[Generate] Attempting to deduct credit for user:', req.user.id);
+        try {
+          const resDeduct = await UserModel.deductCredit(req.user.id);
+          console.log('[Generate] Credit deduction result:', resDeduct);
+        } catch (deductErr) {
+          console.error('[Generate] Credit deduction failed:', deductErr.message);
+        }
+      }
+
       // --- Track usage (best-effort, don't fail the request) ---
       try {
         trackUsage(req.user?.id, usedModel, result.usage, cacheHash);
@@ -158,23 +204,9 @@ router.get('/health', (req, res) => {
 /**
  * Track usage in the generations table (best-effort).
  */
-function trackUsage(userId, model, usage, promptHash) {
+async function trackUsage(userId, model, usage, promptHash) {
   try {
-    // Dynamic import to avoid circular dependency issues at startup
-    import('../db/connection.js').then(({ getDb }) => {
-      const db = getDb();
-      db.prepare(`
-        INSERT INTO generation_history (id, user_id, model, input_tokens, output_tokens, prompt_hash, builder_type, cached, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'profile', 0, CURRENT_TIMESTAMP)
-      `).run(
-        uuidv4(),
-        userId || 'anonymous',
-        model,
-        usage.inputTokens || 0,
-        usage.outputTokens || 0,
-        promptHash
-      );
-    }).catch(() => {});
+    await GenerationModel.trackUsage(userId, model, usage, promptHash, 'profile');
   } catch {
     // Silently fail — usage tracking is best-effort
   }

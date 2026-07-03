@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /settings
+Disallow: /dashboard
+
+Sitemap: https://forge-readme.vercel.app/sitemap.xml

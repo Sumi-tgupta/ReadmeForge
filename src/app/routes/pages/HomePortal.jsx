@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../../hooks/useAuth';
+import useSEO from '../../../hooks/useSEO';
 
 // Page transitions definition
 const pageVariants = {
@@ -21,6 +22,12 @@ export default function HomePortal() {
   const { theme, setTheme, isDark, toggleTheme } = useTheme();
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'AI GitHub Profile & Project README Builder',
+    description: 'Transform your GitHub presence with professional, custom READMEs powered by Gemini AI and automated repository scanning.',
+    canonical: 'https://forge-readme.vercel.app/'
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -28,6 +35,7 @@ export default function HomePortal() {
   // Interactive mockup state machine
   const [mockupStep, setMockupStep] = useState(0);
   const [mockupText, setMockupText] = useState('');
+  const [demoResetCount, setDemoResetCount] = useState(0);
   
   // Custom interactive mockup simulation
   useEffect(() => {
@@ -62,10 +70,11 @@ export default function HomePortal() {
     }
     
     return () => clearTimeout(timer);
-  }, [mockupStep]);
+  }, [mockupStep, demoResetCount]);
 
   const triggerMockupDemo = () => {
     setMockupStep(0);
+    setDemoResetCount(prev => prev + 1);
   };
 
   const faqs = [
@@ -150,7 +159,7 @@ export default function HomePortal() {
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
                     <div className={`absolute right-0 mt-2.5 w-48 rounded-2xl border p-2.5 shadow-xl z-20 space-y-1 ${
-                      isDark ? 'bg-gray-900 border-gray-805 text-white' : 'bg-white border-gray-200 text-gray-850'
+                      isDark ? 'bg-gray-900 border-gray-800 text-white' : 'bg-white border-gray-200 text-gray-850'
                     }`}>
                       <div className="px-2 py-1.5 border-b border-gray-200 dark:border-gray-800 mb-1.5 text-left">
                         <p className="text-xs font-bold truncate">{user.displayName || user.username}</p>
@@ -176,15 +185,6 @@ export default function HomePortal() {
                         }`}
                       >
                         <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
-                      </button>
-                      
-                      <button
-                        onClick={() => { setDropdownOpen(false); navigate('/settings'); }}
-                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-full text-left transition-colors ${
-                          isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-650'
-                        }`}
-                      >
-                        <Settings className="w-3.5 h-3.5" /> Settings
                       </button>
                       
                       <div className="border-t border-gray-200 dark:border-gray-800 my-1 pt-1" />

@@ -10,6 +10,7 @@ import { useGenerator } from '../../../hooks/useGenerator';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import ConversationLayout from '../../../components/conversation/ConversationLayout';
+import useSEO from '../../../hooks/useSEO';
 
 /**
  * Page transitions definition
@@ -87,6 +88,11 @@ function EditorPageContent() {
  * ProfileBuilder — wraps everything in GeneratorProvider.
  */
 export default function ProfileBuilder() {
+  useSEO({
+    title: 'Profile README Wizard',
+    description: 'Configure and generate a premium GitHub Profile README using a step-by-step layout builder.'
+  });
+
   return (
     <GeneratorProvider>
       <EditorPageContent />

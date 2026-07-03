@@ -168,9 +168,9 @@ export default function GeneratePreview() {
   );
 
   return (
-    <div className="animate-fade-in flex flex-col lg:flex-row h-[calc(100vh-60px)] overflow-hidden">
+    <div className="animate-fade-in flex flex-col lg:flex-row lg:h-[calc(100vh-60px)] lg:overflow-hidden">
       {/* LEFT PANEL — Generate controls + editor */}
-      <div className={`w-full lg:w-[40%] p-6 overflow-y-auto border-r ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+      <div className={`w-full lg:w-[40%] p-6 lg:overflow-y-auto border-b lg:border-b-0 lg:border-r ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
         <h2 className={`text-2xl font-bold mb-1 ${vc.text}`}>Generate & Preview</h2>
         <p className={`mb-6 ${vc.textSec}`}>Generate your README with AI</p>
 
@@ -247,7 +247,7 @@ export default function GeneratePreview() {
       </div>
 
       {/* RIGHT PANEL — Preview */}
-      <div className={`w-full lg:w-[60%] flex flex-col overflow-hidden ${isDark ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+      <div className={`w-full lg:w-[60%] flex flex-col lg:overflow-hidden ${isDark ? 'bg-gray-900/50' : 'bg-gray-50'} min-h-[450px] lg:min-h-0`}>
         {/* Tab bar */}
         <div className={`flex items-center gap-1 p-2 border-b ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
           <div className={`flex gap-1 p-1 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>

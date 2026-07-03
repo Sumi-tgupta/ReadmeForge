@@ -11,9 +11,9 @@ router.use(authMiddleware);
  * GET /api/projects
  * List all projects owned by the authenticated user
  */
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const projects = ProjectModel.getUserProjects(req.user.id);
+    const projects = await ProjectModel.getUserProjects(req.user.id);
     
     // Parse input_data for each project for client convenience
     const parsed = projects.map(p => ({
@@ -31,9 +31,9 @@ router.get('/', (req, res, next) => {
  * GET /api/projects/:id
  * Retrieve a single user-owned project
  */
-router.get('/:id', (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const project = ProjectModel.getProjectById(req.params.id, req.user.id);
+    const project = await ProjectModel.getProjectById(req.params.id, req.user.id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
@@ -49,11 +49,11 @@ router.get('/:id', (req, res, next) => {
  * POST /api/projects
  * Save a new project configuration
  */
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { title, builderType, builderStyle, inputData, generatedMarkdown } = req.body;
 
-    const project = ProjectModel.createProject(req.user.id, {
+    const project = await ProjectModel.createProject(req.user.id, {
       title: title || 'Untitled Project',
       builderType,
       builderStyle,
@@ -72,11 +72,11 @@ router.post('/', (req, res, next) => {
  * PUT /api/projects/:id
  * Update an existing project configuration
  */
-router.put('/:id', (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { title, inputData, generatedMarkdown } = req.body;
 
-    const project = ProjectModel.updateProject(req.params.id, req.user.id, {
+    const project = await ProjectModel.updateProject(req.params.id, req.user.id, {
       title,
       inputData,
       generatedMarkdown
@@ -97,9 +97,9 @@ router.put('/:id', (req, res, next) => {
  * POST /api/projects/:id/favorite
  * Toggle project favorite status
  */
-router.post('/:id/favorite', (req, res, next) => {
+router.post('/:id/favorite', async (req, res, next) => {
   try {
-    const project = ProjectModel.toggleFavorite(req.params.id, req.user.id);
+    const project = await ProjectModel.toggleFavorite(req.params.id, req.user.id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found or unauthorized' });
     }
@@ -115,9 +115,9 @@ router.post('/:id/favorite', (req, res, next) => {
  * POST /api/projects/:id/duplicate
  * Duplicate project
  */
-router.post('/:id/duplicate', (req, res, next) => {
+router.post('/:id/duplicate', async (req, res, next) => {
   try {
-    const project = ProjectModel.duplicateProject(req.params.id, req.user.id);
+    const project = await ProjectModel.duplicateProject(req.params.id, req.user.id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found or unauthorized' });
     }
@@ -133,9 +133,9 @@ router.post('/:id/duplicate', (req, res, next) => {
  * DELETE /api/projects/:id
  * Remove a project
  */
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
-    const deleted = ProjectModel.deleteProject(req.params.id, req.user.id);
+    const deleted = await ProjectModel.deleteProject(req.params.id, req.user.id);
     if (!deleted) {
       return res.status(404).json({ error: 'Project not found or unauthorized' });
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Github, X, ShieldAlert } from 'lucide-react';
+import { Github, X, ShieldAlert, Terminal } from 'lucide-react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import GitHubButton from './GitHubButton';
 
@@ -71,10 +71,8 @@ export default function LoginModal({ onClose, onConfirm }) {
         </button>
 
         {/* README Forge Logo */}
-        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white mb-4 shadow-md select-none">
-          <svg className="w-6.5 h-6.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white mb-4 shadow-md select-none">
+          <Terminal className="w-6.5 h-6.5 text-white" />
         </div>
 
         <h3 id="modal-title" className="text-lg font-bold mb-1.5">Continue with GitHub</h3>

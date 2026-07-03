@@ -1,0 +1,22 @@
+{
+  "short_name": "READMEForge",
+  "name": "README Forge - AI GitHub Profile README Builder",
+  "description": "Create custom, visually rich GitHub profile READMEs in minutes with Google Gemini AI.",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0d1117",
+  "theme_color": "#238636",
+  "display": "standalone",
+  "orientation": "portrait"
+}

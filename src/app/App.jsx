@@ -5,6 +5,7 @@ import { ToastProvider } from './providers/ToastProvider';
 import { AuthProvider } from '../features/auth/AuthProvider';
 import ProtectedRoute from '../features/auth/ProtectedRoute';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import CommandPalette from '../components/common/CommandPalette';
 
 // Lazy loading pages for code splitting & performance optimization
 const HomePortal = lazy(() => import('./routes/pages/HomePortal'));
@@ -42,6 +43,7 @@ export default function App() {
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>
+              <CommandPalette />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/" element={<HomePortal />} />

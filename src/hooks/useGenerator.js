@@ -26,22 +26,102 @@ export function useGenerator() {
  */
 export function useGeneratorState(showToast) {
   // Form state
-  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-  const [selectedSections, setSelectedSections] = useState(['about']);
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = window.sessionStorage.getItem('readme_forge_form_data');
+      return saved ? JSON.parse(saved) : INITIAL_FORM_DATA;
+    } catch (_) {
+      return INITIAL_FORM_DATA;
+    }
+  });
+  const [selectedSections, setSelectedSections] = useState(() => {
+    try {
+      const saved = window.sessionStorage.getItem('readme_forge_selected_sections');
+      return saved ? JSON.parse(saved) : ['about'];
+    } catch (_) {
+      return ['about'];
+    }
+  });
 
   // Wizard navigation
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(() => {
+    try {
+      const saved = window.sessionStorage.getItem('readme_forge_step_index');
+      return saved ? parseInt(saved, 10) || 0 : 0;
+    } catch (_) {
+      return 0;
+    }
+  });
   const [expandedProject, setExpandedProject] = useState(-1);
 
   // Generation state
-  const [generatedMarkdown, setGeneratedMarkdown] = useState('');
-  const [editMarkdown, setEditMarkdown] = useState('');
+  const [generatedMarkdown, setGeneratedMarkdown] = useState(() => {
+    return window.sessionStorage.getItem('readme_forge_generated_markdown') || '';
+  });
+  const [editMarkdown, setEditMarkdown] = useState(() => {
+    return window.sessionStorage.getItem('readme_forge_edit_markdown') || '';
+  });
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Preview state
-  const [previewTab, setPreviewTab] = useState('preview');
-  const [previewSubTab, setPreviewSubTab] = useState('clean');
-  const [ghPreviewDark, setGhPreviewDark] = useState(false);
+  const [previewTab, setPreviewTab] = useState(() => {
+    return window.sessionStorage.getItem('readme_forge_preview_tab') || 'preview';
+  });
+  const [previewSubTab, setPreviewSubTab] = useState(() => {
+    return window.sessionStorage.getItem('readme_forge_preview_sub_tab') || 'clean';
+  });
+  const [ghPreviewDark, setGhPreviewDark] = useState(() => {
+    return window.sessionStorage.getItem('readme_forge_gh_preview_dark') === 'true';
+  });
+
+  // Sync state changes to sessionStorage to survive OAuth redirect
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_form_data', JSON.stringify(formData));
+    } catch (_) {}
+  }, [formData]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_selected_sections', JSON.stringify(selectedSections));
+    } catch (_) {}
+  }, [selectedSections]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_step_index', currentStepIndex.toString());
+    } catch (_) {}
+  }, [currentStepIndex]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_generated_markdown', generatedMarkdown);
+    } catch (_) {}
+  }, [generatedMarkdown]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_edit_markdown', editMarkdown);
+    } catch (_) {}
+  }, [editMarkdown]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_preview_tab', previewTab);
+    } catch (_) {}
+  }, [previewTab]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_preview_sub_tab', previewSubTab);
+    } catch (_) {}
+  }, [previewSubTab]);
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('readme_forge_gh_preview_dark', ghPreviewDark.toString());
+    } catch (_) {}
+  }, [ghPreviewDark]);
 
   // Settings state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -191,6 +271,16 @@ export function useGeneratorState(showToast) {
     setGeneratedMarkdown('');
     setEditMarkdown('');
     setConfirmReset(false);
+    try {
+      window.sessionStorage.removeItem('readme_forge_form_data');
+      window.sessionStorage.removeItem('readme_forge_selected_sections');
+      window.sessionStorage.removeItem('readme_forge_step_index');
+      window.sessionStorage.removeItem('readme_forge_generated_markdown');
+      window.sessionStorage.removeItem('readme_forge_edit_markdown');
+      window.sessionStorage.removeItem('readme_forge_preview_tab');
+      window.sessionStorage.removeItem('readme_forge_preview_sub_tab');
+      window.sessionStorage.removeItem('readme_forge_gh_preview_dark');
+    } catch (_) {}
     showToast('Data reset successfully');
   }, [showToast]);
 

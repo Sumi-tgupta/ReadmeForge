@@ -84,6 +84,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
+  color: #1f2328;
 }
 .github-markdown-body h1 {
   padding-bottom: 0.3em;
@@ -189,6 +190,9 @@ body {
 }
 
 /* dark mode github styles */
+.github-dark .github-markdown-body {
+  color: #e6edf3;
+}
 .github-dark .github-markdown-body h1,
 .github-dark .github-markdown-body h2 {
   border-bottom-color: #30363d;

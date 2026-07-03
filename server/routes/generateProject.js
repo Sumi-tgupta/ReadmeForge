@@ -6,6 +6,8 @@ import { callGemini, GeminiRateLimitError, GeminiAuthError } from '../services/a
 import { withRetry } from '../services/ai/retryHandler.js';
 import { getModelChain, recordFailure, recordSuccess } from '../services/ai/modelRouter.js';
 import { getClientId, acquireSlot, releaseSlot } from '../services/ai/requestQueue.js';
+import { UserModel } from '../models/User.js';
+import { GenerationModel } from '../models/Generation.js';
 
 // New GitHub service imports
 import { scanRepository } from '../services/github/repositoryScanner.js';
@@ -36,6 +38,18 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
     return res.status(400).json({ error: 'Missing required field: repoUrl' });
   }
 
+  // --- Credits Check ---
+  if (req.user) {
+    try {
+      const user = await UserModel.getCreditsAndPlan(req.user.id);
+      if (user && user.plan !== 'premium' && user.credits <= 0) {
+        return res.status(403).json({ error: 'No credits remaining. Please upgrade your plan or wait for reset.' });
+      }
+    } catch (err) {
+      console.error('[Project Generate] Credits check failed:', err.message);
+    }
+  }
+
   // 1. Validate repository URL format
   const validation = validateRepoUrl(repoUrl);
   if (!validation.isValid) {
@@ -53,10 +67,27 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
     // 3. Persistent Cache Check (SQLite database)
     // We construct a cache key based on owner/repo/mode
     const cacheKey = buildCacheKey(owner, repo, 'default', mode);
-    const cachedRow = getPersistentCache(cacheKey);
+    const cachedRow = await getPersistentCache(cacheKey);
     
     if (cachedRow && cachedRow.generatedReadme) {
       console.log(`[Project Generate] Database cache hit for ${cacheKey}`);
+      
+      // Deduct credit for cached project generation
+      if (req.user) {
+        try {
+          await UserModel.deductCredit(req.user.id);
+        } catch (deductErr) {
+          console.error('[Project Generate] Credit deduction failed on cache hit:', deductErr.message);
+        }
+      }
+
+      // Track usage for cached project generation
+      try {
+        await trackUsage(req.user?.id, 'cache', { inputTokens: 0, outputTokens: 0 }, cacheKey);
+      } catch (trackErr) {
+        console.error('[Project Generate] Usage tracking error on cache hit:', trackErr.message);
+      }
+
       return res.json({
         success: true,
         cached: true,
@@ -166,6 +197,15 @@ Structure the README with:
       console.error('[Project Generate] Usage tracking error:', trackErr.message);
     }
 
+    // --- Deduct credit ---
+    if (req.user) {
+      try {
+        await UserModel.deductCredit(req.user.id);
+      } catch (deductErr) {
+        console.error('[Project Generate] Credit deduction failed:', deductErr.message);
+      }
+    }
+
     // 9. Respond
     return res.json({
       success: true,
@@ -186,22 +226,9 @@ Structure the README with:
 /**
  * Track usage in the generations table (best-effort).
  */
-function trackUsage(userId, model, usage, promptHash) {
+async function trackUsage(userId, model, usage, promptHash) {
   try {
-    import('../db/connection.js').then(({ getDb }) => {
-      const db = getDb();
-      db.prepare(`
-        INSERT INTO generation_history (id, user_id, model, input_tokens, output_tokens, prompt_hash, builder_type, cached, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'project', 0, CURRENT_TIMESTAMP)
-      `).run(
-        uuidv4(),
-        userId || 'anonymous',
-        model,
-        usage.inputTokens || 0,
-        usage.outputTokens || 0,
-        promptHash
-      );
-    }).catch(() => {});
+    await GenerationModel.trackUsage(userId, model, usage, promptHash, 'project');
   } catch {
     // Silently fail
   }

@@ -21,16 +21,24 @@ export const sessionManager = {
   /**
    * Create a new session in database and attach secure HttpOnly cookie
    */
-  createSession: (userId, res) => {
-    const db = getDb();
+  createSession: async (userId, res) => {
+    const supabase = getDb();
     const sessionId = uuidv4();
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
 
-    // Store session in SQLite
-    db.prepare(`
-      INSERT INTO sessions (id, user_id, expires_at)
-      VALUES (?, ?, ?)
-    `).run(sessionId, userId, expiresAt);
+    // Store session in Supabase
+    const { error } = await supabase
+      .from('sessions')
+      .insert({
+        id: sessionId,
+        user_id: userId,
+        expires_at: expiresAt
+      });
+
+    if (error) {
+      console.error('[SessionManager] createSession error:', error.message);
+      throw error;
+    }
 
     // Set secure cookie
     const isProduction = process.env.NODE_ENV === 'production';
@@ -46,36 +54,44 @@ export const sessionManager = {
   /**
    * Validate and load session + user details from request cookies
    */
-  getSession: (req) => {
-    const db = getDb();
+  getSession: async (req) => {
+    const supabase = getDb();
     const cookies = parseCookies(req.headers.cookie);
     const sessionId = cookies[SESSION_COOKIE_NAME];
 
     if (!sessionId) return null;
 
     const now = new Date().toISOString();
-    const session = db.prepare(`
-      SELECT s.*, u.username, u.display_name, u.email, u.avatar_url, u.profile_url, u.plan, u.role
-      FROM sessions s
-      JOIN users u ON s.user_id = u.id
-      WHERE s.id = ? AND s.expires_at > ?
-    `).get(sessionId, now);
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('id, user_id, expires_at, users (username, display_name, email, avatar_url, profile_url, plan, role)')
+      .eq('id', sessionId)
+      .gt('expires_at', now)
+      .maybeSingle();
 
-    if (!session) return null;
+    console.log('[SessionManager] getSession raw data:', data, 'error:', error);
+
+    if (error || !data) {
+      if (error) console.error('[SessionManager] getSession error:', error.message);
+      return null;
+    }
+
+    const userData = data.users;
+    if (!userData) return null;
 
     return {
-      id: session.id,
-      userId: session.user_id,
-      expiresAt: session.expires_at,
+      id: data.id,
+      userId: data.user_id,
+      expiresAt: data.expires_at,
       user: {
-        id: session.user_id,
-        username: session.username,
-        displayName: session.display_name,
-        email: session.email,
-        avatarUrl: session.avatar_url,
-        profileUrl: session.profile_url,
-        plan: session.plan,
-        role: session.role
+        id: data.user_id,
+        username: userData.username,
+        displayName: userData.display_name,
+        email: userData.email,
+        avatarUrl: userData.avatar_url,
+        profileUrl: userData.profile_url,
+        plan: userData.plan,
+        role: userData.role
       }
     };
   },
@@ -83,15 +99,18 @@ export const sessionManager = {
   /**
    * Refresh expiration timer for an active session
    */
-  refreshSession: (sessionId, res) => {
-    const db = getDb();
+  refreshSession: async (sessionId, res) => {
+    const supabase = getDb();
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS).toISOString();
 
-    db.prepare(`
-      UPDATE sessions
-      SET expires_at = ?
-      WHERE id = ?
-    `).run(expiresAt, sessionId);
+    const { error } = await supabase
+      .from('sessions')
+      .update({ expires_at: expiresAt })
+      .eq('id', sessionId);
+
+    if (error) {
+      console.error('[SessionManager] refreshSession error:', error.message);
+    }
 
     const isProduction = process.env.NODE_ENV === 'production';
     let cookieStr = `${SESSION_COOKIE_NAME}=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DURATION_MS / 1000}`;
@@ -105,13 +124,18 @@ export const sessionManager = {
   /**
    * Destroy the session in DB and clear response cookies
    */
-  destroySession: (req, res) => {
-    const db = getDb();
+  destroySession: async (req, res) => {
+    const supabase = getDb();
     const cookies = parseCookies(req.headers.cookie);
     const sessionId = cookies[SESSION_COOKIE_NAME];
 
     if (sessionId) {
-      db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('id', sessionId);
+      
+      if (error) console.error('[SessionManager] destroySession error:', error.message);
     }
 
     // Clear client cookie

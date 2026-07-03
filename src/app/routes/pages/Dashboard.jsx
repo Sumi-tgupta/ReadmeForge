@@ -6,16 +6,22 @@ import { authApi } from '../../../services/authApi';
 import { 
   BarChart3, Activity, Clock, CreditCard, ChevronRight, 
   Sparkles, Plus, Star, Copy, ExternalLink, Settings, 
-  User, LayoutDashboard, Database, RefreshCw, FolderGit2
+  User, LayoutDashboard, Database, RefreshCw, FolderGit2, Terminal
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useSEO from '../../../hooks/useSEO';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const { vc, isDark } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'User Dashboard',
+    description: 'Manage your saved projects, review generation statistics, and check API token credits.'
+  });
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -90,10 +96,12 @@ export default function Dashboard() {
         isDark ? 'border-gray-800 bg-gray-905' : 'border-gray-200 bg-gray-50/50'
       }`}>
         <div className="p-6 flex items-center gap-2.5 border-b border-gray-250 dark:border-gray-800">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold select-none">
-            R
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg select-none">
+            <Terminal className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-sm">README Forge</span>
+          <span className="font-bold text-sm bg-gradient-to-r from-gray-950 dark:from-white to-gray-500 dark:to-gray-400 bg-clip-text text-transparent">
+            README<span className="text-indigo-600 dark:text-indigo-400 ml-0.5">Forge</span>
+          </span>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -110,14 +118,6 @@ export default function Dashboard() {
             }`}
           >
             <FolderGit2 className="w-4 h-4" /> My Projects
-          </button>
-          <button
-            onClick={() => navigate('/settings')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
-              isDark ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-            }`}
-          >
-            <Settings className="w-4 h-4" /> System Settings
           </button>
         </nav>
 

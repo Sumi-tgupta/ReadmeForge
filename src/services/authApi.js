@@ -20,9 +20,6 @@ export const authApi = {
    * Fetch current authenticated user session details
    */
   getCurrentUser: async () => {
-    const res = await fetch('/api/me'); // Wait, the backend route is /api/auth/me! Let's check!
-    // Ah, in server/routes/auth.js: router.get('/me', ...) loaded under app.use('/api/auth', authRouter).
-    // So the full endpoint path is indeed /api/auth/me!
     const resAuth = await fetch('/api/auth/me');
     if (!resAuth.ok) return { user: null };
     return resAuth.json(); // returns { user }

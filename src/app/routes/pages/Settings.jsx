@@ -4,6 +4,7 @@ import { useToast } from '../../providers/ToastProvider';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useSEO from '../../../hooks/useSEO';
 
 // Page transitions definition
 const pageVariants = {
@@ -16,6 +17,11 @@ export default function Settings() {
   const { vc, isDark, theme, setTheme, builderStyle, setBuilderStyle } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'Preferences Settings',
+    description: 'Customize application theme, builders interface layout style, and diagnostic settings.'
+  });
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);

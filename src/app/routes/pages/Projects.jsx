@@ -9,12 +9,18 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useSEO from '../../../hooks/useSEO';
 
 export default function Projects() {
   const { user } = useAuth();
   const { vc, isDark } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'My Saved Projects',
+    description: 'View, search, edit, and duplicate your saved GitHub profile and project README templates.'
+  });
 
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
