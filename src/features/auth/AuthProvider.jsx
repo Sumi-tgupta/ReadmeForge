@@ -9,7 +9,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState(null);
 
   // Load user profile details
   const refreshUser = useCallback(async () => {
@@ -60,10 +59,8 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    // Set callback to run after successful login
-    setPendingAction(() => actionFn);
-    
-    // Save pending state in sessionStorage to survive OAuth redirect
+    // Save pending state in sessionStorage to survive OAuth redirect.
+    // Individual builders listen for the resume event and restart the intended action.
     window.sessionStorage.setItem('readme_forge_pending_action', 'true');
     window.sessionStorage.setItem('readme_forge_pending_desc', description);
 
@@ -114,8 +111,8 @@ export function AuthProvider({ children }) {
     isAuthenticated,
     refreshUser,
     executeWithAuth,
-    openLoginModal: (callback) => {
-      setPendingAction(() => callback);
+    authenticated: user !== null,
+    openLoginModal: () => {
       setIsLoginModalOpen(true);
     },
     closeLoginModal: () => setIsLoginModalOpen(false)

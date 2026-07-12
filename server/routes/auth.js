@@ -7,14 +7,38 @@ import { UserModel } from '../models/User.js';
 const router = Router();
 const STATE_COOKIE_NAME = 'oauth_state';
 
+function encodeState(csrfToken, redirectPath) {
+  return Buffer.from(JSON.stringify({ csrfToken, redirectPath })).toString('base64url');
+}
+
+function decodeState(state) {
+  try {
+    const decoded = JSON.parse(Buffer.from(String(state), 'base64url').toString('utf8'));
+    return {
+      csrfToken: decoded.csrfToken,
+      redirectPath: sanitizeRedirectPath(decoded.redirectPath)
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+function sanitizeRedirectPath(redirectPath) {
+  if (typeof redirectPath !== 'string') return '/';
+  if (!redirectPath.startsWith('/') || redirectPath.startsWith('//') || /[\r\n]/.test(redirectPath)) {
+    return '/';
+  }
+  return redirectPath;
+}
+
 /**
  * POST /api/auth/login
  * Starts OAuth flow for the frontend SPA by returning the authorization URL
  */
 router.post('/login', (req, res) => {
-  const redirectPath = req.body.redirect || '/';
+  const redirectPath = sanitizeRedirectPath(req.body.redirect);
   const csrfToken = uuidv4();
-  const state = `${csrfToken}:${redirectPath}`;
+  const state = encodeState(csrfToken, redirectPath);
 
   // Store CSRF state token in cookie (expires in 10 minutes)
   const isProduction = process.env.NODE_ENV === 'production';
@@ -33,9 +57,9 @@ router.post('/login', (req, res) => {
  * Standard GET redirect entry point
  */
 router.get('/login', (req, res) => {
-  const redirectPath = req.query.redirect || '/';
+  const redirectPath = sanitizeRedirectPath(req.query.redirect);
   const csrfToken = uuidv4();
-  const state = `${csrfToken}:${redirectPath}`;
+  const state = encodeState(csrfToken, redirectPath);
 
   const isProduction = process.env.NODE_ENV === 'production';
   let cookieStr = `${STATE_COOKIE_NAME}=${csrfToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600`;
@@ -59,10 +83,13 @@ router.get('/callback', async (req, res, next) => {
       return res.status(400).send('OAuth callback parameters missing.');
     }
 
-    // Parse state: "csrfToken:redirectPath"
-    const parts = state.split(':');
-    const stateToken = parts[0];
-    const redirectPath = parts[1] || '/';
+    const decodedState = decodeState(state);
+    if (!decodedState?.csrfToken) {
+      return res.status(400).send('OAuth state parameter is invalid.');
+    }
+
+    const stateToken = decodedState.csrfToken;
+    const redirectPath = decodedState.redirectPath;
 
     // Parse cookies from headers
     const rawCookies = req.headers.cookie || '';
