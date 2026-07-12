@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { 
   User, Code2, Rocket, Share2, BarChart2, Edit2, 
@@ -24,6 +24,15 @@ export default function ReviewScreen({ generator, onJumpToQuestion }) {
     editMarkdown, 
     setEditMarkdown 
   } = generator;
+
+  // Resume profile generation after an OAuth redirect from the protected action.
+  useEffect(() => {
+    const handleResume = () => {
+      generateReadme();
+    };
+    window.addEventListener('readme_forge_resume_generation', handleResume);
+    return () => window.removeEventListener('readme_forge_resume_generation', handleResume);
+  }, [generateReadme]);
 
   const handleSave = () => {
     executeWithAuth(async () => {
