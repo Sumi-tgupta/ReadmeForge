@@ -64,8 +64,8 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
   }
 
   try {
-    // 3. Persistent Cache Check (SQLite database)
-    // We construct a cache key based on owner/repo/mode
+    // 3. Persistent Cache Check (Supabase database)
+    // Use the same owner/repo/default/mode key for lookup and storage.
     const cacheKey = buildCacheKey(owner, repo, 'default', mode);
     const cachedRow = await getPersistentCache(cacheKey);
     
@@ -186,8 +186,8 @@ Structure the README with:
       return res.status(502).json({ error: 'AI generation failed after all retries.', debug: details });
     }
 
-    // 7. Write to persistent SQLite cache
-    const dbKey = buildCacheKey(owner, repo, repoData.repository.defaultBranch, mode);
+    // 7. Write to persistent Supabase cache
+    const dbKey = cacheKey;
     setPersistentCache(dbKey, owner, repo, repoData.repository, repoData, result.text, mode);
 
     // 8. Track usage logs in db
