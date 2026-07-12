@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
 import { optionalAuth } from '../middleware/auth.js';
-import { callGemini, GeminiRateLimitError, GeminiAuthError } from '../services/ai/geminiProvider.js';
+import { callGemini, GeminiRateLimitError, GeminiAuthError, isGeminiConfigurationError } from '../services/ai/geminiProvider.js';
 import { withRetry } from '../services/ai/retryHandler.js';
 import { hashKey, getCached, setCache, getCacheStats } from '../services/ai/cache.js';
 import { buildOptimizedPrompt } from '../services/ai/promptOptimizer.js';
@@ -127,8 +127,9 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
           recordFailure(modelConfig.model);
           console.log(`[Generate] Model ${modelConfig.model} failed: ${err.message}`);
 
-          // Don't try fallback models for auth errors — they'll all fail
-          if (err instanceof GeminiAuthError) {
+          // Don't try fallback models for API-key/project configuration errors — they'll all fail.
+          // Other 403s can be model-specific, so continue through the fallback chain.
+          if (err instanceof GeminiAuthError && isGeminiConfigurationError(err)) {
             break;
           }
           // Continue to next model in the chain
@@ -141,8 +142,11 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
           ? { message: lastError.message, status: lastError.status, details: lastError.details }
           : undefined;
 
-        if (lastError instanceof GeminiAuthError) {
-          return res.status(500).json({ error: 'Server AI configuration error. Contact admin.', debug: details });
+        if (lastError instanceof GeminiAuthError && isGeminiConfigurationError(lastError)) {
+          return res.status(500).json({
+            error: 'Server AI configuration error. Verify GEMINI_API_KEY and Google Generative Language API access.',
+            debug: details
+          });
         }
         if (lastError instanceof GeminiRateLimitError) {
           return res.status(429).json({ error: 'AI servers are busy. Please try again in a moment.', debug: details });

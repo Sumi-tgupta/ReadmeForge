@@ -14,7 +14,8 @@ export default function CommandPalette() {
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { vc, isDark, setTheme, setVibe, vibe } = useTheme();
-  const { authenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
+  const authenticated = Boolean(user);
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
