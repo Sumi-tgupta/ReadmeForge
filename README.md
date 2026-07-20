@@ -1,6 +1,6 @@
 # README Forge — AI GitHub Profile & Project README Builder
 
-README Forge is a production-grade, commercial-quality SaaS application designed to help developers create custom, visually rich, and professional GitHub profile READMEs and automated project documentation in minutes. Powered by the Google Gemini API, it uses a robust backend AI gateway to optimize prompts, prevent rate limits, cache identical generations, and secure API operations.
+README Forge is a production-grade, commercial-quality SaaS application designed to help developers create custom, visually rich, and professional GitHub profile READMEs and automated project documentation in a matter of minutes. Powered by the Google Gemini API, it uses a robust backend AI gateway to optimize prompts, prevent rate limits, cache identical generations, and secure API operations.
 
 ## Links
 * **Live Application (Frontend)**: [https://forge-readme.vercel.app/](https://forge-readme.vercel.app/)
