@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
 import { optionalAuth } from '../middleware/auth.js';
-import { callGemini, GeminiRateLimitError, GeminiAuthError } from '../services/ai/geminiProvider.js';
+import { callGemini, GeminiRateLimitError, GeminiAuthError, isGeminiConfigurationError } from '../services/ai/geminiProvider.js';
 import { withRetry } from '../services/ai/retryHandler.js';
 import { getModelChain, recordFailure, recordSuccess } from '../services/ai/modelRouter.js';
 import { getClientId, acquireSlot, releaseSlot } from '../services/ai/requestQueue.js';
@@ -74,8 +74,8 @@ router.post('/', optionalAuth, guestLimiter, generateLimiter, async (req, res, n
   }
 
   try {
-    // 3. Persistent Cache Check (SQLite database)
-    // We construct a cache key based on owner/repo/mode
+    // 3. Persistent Cache Check (Supabase database)
+    // Use the same owner/repo/default/mode key for lookup and storage.
     const cacheKey = buildCacheKey(owner, repo, 'default', mode);
     const cachedRow = await getPersistentCache(cacheKey);
     
@@ -154,7 +154,9 @@ Structure the README with:
     const preferredModelChain = [
       { model: 'gemini-2.5-flash-lite', temperature: 0.7, topP: 0.9, maxOutputTokens: 3000 },
       ...modelChain
-    ];
+    ].filter((config, index, chain) =>
+      chain.findIndex(item => item.model === config.model) === index
+    );
 
     for (const modelConfig of preferredModelChain) {
       try {
@@ -179,8 +181,8 @@ Structure the README with:
         recordFailure(modelConfig.model);
         console.log(`[Project Generate] Model ${modelConfig.model} failed: ${err.message}`);
         
-        if (err instanceof GeminiAuthError) {
-          break; // Authentication errors are unrecoverable by fallbacks
+        if (err instanceof GeminiAuthError && isGeminiConfigurationError(err)) {
+          break; // API-key/project configuration errors are unrecoverable by fallbacks
         }
       }
     }
@@ -190,14 +192,17 @@ Structure the README with:
         ? { message: lastError.message, status: lastError.status }
         : undefined;
 
-      if (lastError instanceof GeminiAuthError) {
-        return res.status(500).json({ error: 'Server AI configuration error.', debug: details });
+      if (lastError instanceof GeminiAuthError && isGeminiConfigurationError(lastError)) {
+        return res.status(500).json({
+          error: 'Server AI configuration error. Verify GEMINI_API_KEY and Google Generative Language API access.',
+          debug: details
+        });
       }
       return res.status(502).json({ error: 'AI generation failed after all retries.', debug: details });
     }
 
-    // 7. Write to persistent SQLite cache
-    const dbKey = buildCacheKey(owner, repo, repoData.repository.defaultBranch, mode);
+    // 7. Write to persistent Supabase cache
+    const dbKey = cacheKey;
     await setPersistentCache(dbKey, owner, repo, repoData.repository, repoData, result.text, mode);
 
     // 8. Track usage logs in db

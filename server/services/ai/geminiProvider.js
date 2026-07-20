@@ -32,6 +32,29 @@ export class GeminiAuthError extends GeminiError {
   }
 }
 
+/**
+ * Gemini can return 403 for both unrecoverable API-key/configuration problems
+ * and model-specific permission/availability problems. Only the former should
+ * stop the fallback chain.
+ */
+export function isGeminiConfigurationError(error) {
+  const details = error?.details || {};
+  const raw = JSON.stringify(details).toLowerCase();
+
+  return [
+    'api key not valid',
+    'api_key_invalid',
+    'apikey_invalid',
+    'key invalid',
+    'gemini_api_key not configured',
+    'permission denied on resource project',
+    'service_disabled',
+    'api has not been used',
+    'generativelanguage.googleapis.com has not been used',
+    'billing'
+  ].some(fragment => raw.includes(fragment));
+}
+
 export class GeminiServerError extends GeminiError {
   constructor(status, details) {
     super(`Gemini server error (${status})`, status, details);
@@ -54,7 +77,7 @@ export class GeminiServerError extends GeminiError {
 export async function callGemini({ model, prompt, systemPrompt, maxOutputTokens = 4000, temperature = 0.8 }) {
   const apiKey = GEMINI_API_KEY();
   if (!apiKey) {
-    throw new GeminiError('GEMINI_API_KEY not configured in server .env', 500);
+    throw new GeminiAuthError({ error: { message: 'GEMINI_API_KEY not configured in server environment' } });
   }
 
   const url = `${BASE_URL}/${model}:generateContent?key=${apiKey}`;

@@ -73,8 +73,6 @@ export const sessionManager = {
       .gt('expires_at', now)
       .maybeSingle();
 
-    console.log('[SessionManager] getSession raw data:', data, 'error:', error);
-
     if (error || !data) {
       if (error) console.error('[SessionManager] getSession error:', error.message);
       return null;
