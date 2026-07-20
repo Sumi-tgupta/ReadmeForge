@@ -21,6 +21,9 @@ export const githubOAuth = {
    */
   getAuthorizeUrl: (state) => {
     if (!githubOAuth.isConfigured()) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('GitHub OAuth credentials are not configured in production environment.');
+      }
       // Offline mock authentication callback path
       return `/api/auth/callback?code=mock_oauth_code_12345&state=${state}`;
     }
@@ -36,6 +39,9 @@ export const githubOAuth = {
    */
   exchangeCodeForToken: async (code) => {
     if (!githubOAuth.isConfigured()) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('GitHub OAuth credentials are not configured in production environment.');
+      }
       return 'mock_access_token_12345';
     }
 
@@ -74,6 +80,9 @@ export const githubOAuth = {
    */
   getGithubProfile: async (accessToken) => {
     if (!githubOAuth.isConfigured() || accessToken === 'mock_access_token_12345') {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('GitHub OAuth credentials are not configured in production environment.');
+      }
       // Offline fallback mock profile
       return {
         id: 12345678,

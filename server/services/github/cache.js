@@ -72,3 +72,6 @@ export function getCacheStats() {
     keys: Array.from(cacheStore.keys())
   };
 }
+
+// Automatically prune cache every 15 minutes to prevent memory leaks
+setInterval(pruneCache, 15 * 60 * 1000).unref();

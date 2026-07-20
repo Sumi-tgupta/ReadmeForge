@@ -41,7 +41,8 @@ export default function ConversationLayout({ builderType = 'profile' }) {
     startConversation, 
     submitAnswer, 
     handleCommand,
-    progress 
+    progress,
+    formData
   } = store;
 
   // Re-use core generator context from parents (for form state)
@@ -257,8 +258,8 @@ export default function ConversationLayout({ builderType = 'profile' }) {
                 <ReviewScreen 
                   generator={store} 
                   onJumpToQuestion={(id) => {
-                    // Update current question
-                    submitAnswer(formData[id], `Jump to edit ${id}`);
+                    // Update current question — use safe access to prevent crash if id is missing
+                    submitAnswer(formData?.[id] ?? '', `Jump to edit ${id}`);
                   }}
                 />
               </div>

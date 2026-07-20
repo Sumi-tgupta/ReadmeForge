@@ -20,7 +20,7 @@ const SECTIONS = [
   { key: 'Preview', label: 'Review & Build', icon: CheckCircle2 }
 ];
 
-export default function ConversationSidebar({ progress, currentSection, onJumpToSection }) {
+export default React.memo(function ConversationSidebar({ progress, currentSection, onJumpToSection }) {
   const { vc, isDark } = useTheme();
 
   return (
@@ -96,4 +96,5 @@ export default function ConversationSidebar({ progress, currentSection, onJumpTo
       </div>
     </aside>
   );
-}
+});
+

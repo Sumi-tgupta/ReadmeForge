@@ -525,3 +525,142 @@
   - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
 - Next: Await user requests.
 ---
+
+### Session 49 — 2026-07-03
+- Did: Initiated code cleanup and resolved key critical security/logic concerns from the Production Audit:
+  - Deprecated the duplicate and broken `requireAuth.js` middleware by replacing it with a clean deprecation statement.
+  - Resolved the React Rules of Hooks violation in `ProjectBuilder.jsx` by moving the early return checks for conversation mode below all state and lifecycle hooks.
+  - Fixed the `formData` ReferenceError in `ConversationLayout.jsx` by including it in the destructured fields of the conversation store hook.
+  - Appended the atomic `deduct_user_credit` PL/pgSQL function to `server/db/schema.sql` and refactored `User.js` model to call it first with a read-then-write fallback query, curing the TOCTOU concurrency race conditions.
+  - Awaited the asynchronous `trackUsage` and `setPersistentCache` promises in `generate.js` and `generateProject.js` routes to resolve potential background crashes.
+  - Cleaned up the `server/package.json` by removing unused dependencies (`better-sqlite3` and `bcryptjs`).
+- Changed:
+  - [server/middleware/requireAuth.js](file:///D:/CODE/github_readme_builder/server/middleware/requireAuth.js)
+  - [server/models/User.js](file:///D:/CODE/github_readme_builder/server/models/User.js)
+  - [server/db/schema.sql](file:///D:/CODE/github_readme_builder/server/db/schema.sql)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [server/package.json](file:///D:/CODE/github_readme_builder/server/package.json)
+  - [src/components/conversation/ConversationLayout.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationLayout.jsx)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await user confirmation of deployment.
+---
+
+### Session 50 — 2026-07-03
+- Did: Located and copied the previously created "Production Readiness Audit" artifact from the system brain folder to the local workspace documentation directory at `docs/ProductionReadinessAudit.md`.
+- Changed:
+  - [docs/ProductionReadinessAudit.md](file:///D:/CODE/github_readme_builder/docs/ProductionReadinessAudit.md)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await further tasks from the user.
+---
+
+### Session 51 — 2026-07-03
+- Did: Fixed all 7 CRITICAL severity issues from the Production Readiness Audit:
+  1. **Hooks Violation Fix:** Refactored `conversationStore.js` to extract `useGenerator()` into a standalone `useSafeGenerator()` wrapper hook called at the top level, satisfying React Rules of Hooks.
+  2. **ReferenceError Crash Fix:** Fixed `ConversationLayout.jsx` line 261 — replaced `formData[id]` with safe `formData?.[id] ?? ''` to prevent runtime crash when jumping between review questions.
+  3. **XSS Fix:** Installed `dompurify` package and integrated `DOMPurify.sanitize()` in `MarkdownRenderer.jsx` before all `dangerouslySetInnerHTML` calls.
+  4. **Stubbed AuthProvider Fix:** Replaced the dangerous stub `src/app/providers/AuthProvider.jsx` (which had `isAuthenticated` hardcoded to `true`) with a safe re-export pointing to the real `features/auth/AuthProvider.jsx`.
+  5. **SplashScreen Fix:** Rewrote `SplashScreen.jsx` to use the real GitHub OAuth `login()` flow instead of calling the dead `setApiKey()` stub API.
+  6. **Duplicate Middleware:** `requireAuth.js` was already deprecated in the previous session.
+  7. **ProjectBuilder Hooks:** Early return at line 83 of `ProjectBuilder.jsx` is placed correctly below all hook initializations — confirmed as already fixed in Session 49.
+- Changed:
+  - [src/components/conversation/conversationStore.js](file:///D:/CODE/github_readme_builder/src/components/conversation/conversationStore.js)
+  - [src/components/conversation/ConversationLayout.jsx](file:///D:/CODE/github_readme_builder/src/components/conversation/ConversationLayout.jsx)
+  - [src/components/common/MarkdownRenderer.jsx](file:///D:/CODE/github_readme_builder/src/components/common/MarkdownRenderer.jsx)
+  - [src/app/providers/AuthProvider.jsx](file:///D:/CODE/github_readme_builder/src/app/providers/AuthProvider.jsx)
+  - [src/features/generator/SplashScreen.jsx](file:///D:/CODE/github_readme_builder/src/features/generator/SplashScreen.jsx)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Move to HIGH severity fixes — anonymous AI generation abuse, jarring theme inconsistencies, and missing mobile sidebars.
+---
+
+### Session 52 — 2026-07-03
+- Did: Fixed all 5 HIGH severity issues from the Production Readiness Audit:
+  1. **Theme Consistency (Settings):** Replaced all hardcoded dark colors (`#0D1117`, `#161B22`, `#9CA3AF`) in `Settings.jsx` with dynamic `vc.bg`, `vc.text`, and `isDark` tokens. Also corrected stale SQLite references to Supabase.
+  2. **Theme Consistency (NotFound):** Applied same theme token pattern to `NotFound.jsx` — page now correctly shows light background in light mode.
+  3. **Mobile Sidebar (Dashboard):** Added `mobileSidebarOpen` state, a full-screen dark overlay, a slide-in sidebar drawer (`translate-x` CSS transition), and a hamburger `Menu` button in the header that only renders on mobile (`md:hidden`).
+  4. **Cross-Origin Cookie Fix:** Updated `sessionManager.js` to issue `SameSite=None; Secure` cookies in production (Vercel/Render cross-domain) vs `SameSite=Lax` in local dev.
+  5. **Anonymous AI Abuse Fix:** Added `guestLimiter` middleware (3 req/hour IP-based, skipped for authenticated users) to both `generate.js` and `generateProject.js` routes — prevents uncapped token exploitation by anonymous guests.
+- Changed:
+  - [src/app/routes/pages/Settings.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Settings.jsx)
+  - [src/app/routes/pages/NotFound.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/NotFound.jsx)
+  - [src/app/routes/pages/Dashboard.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Dashboard.jsx)
+  - [server/sessionManager.js](file:///D:/CODE/github_readme_builder/server/sessionManager.js)
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+  - [server/routes/generateProject.js](file:///D:/CODE/github_readme_builder/server/routes/generateProject.js)
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Move to MEDIUM severity fixes or await user direction.
+---
+
+### Session 53+54 — 2026-07-03 (MEDIUM + EASY severity)
+- Did: Addressed all remaining Medium and Easy audit findings:
+  1. **Tailwind Config Fixed:** Added all missing custom tokens to `tailwind.config.js` that were silently broken: `gray-655→gray-650`, `gray-750`, `gray-850`, `gray-905` (dark sidebar), `indigo-650` (brand button), `purple-650` (gradient end), `z-35` (sticky header). Corrected zIndex placement inside `theme.extend`.
+  2. **GitHub URL Validation:** Added regex `GITHUB_REPO_REGEX` to `ProjectBuilder.jsx` `handleScan` — now validates proper `github.com/owner/repo` format before submitting.
+  3. **HomePortal Decomposition:** Split 722-line monolith into:
+     - `home/ProductsSection.jsx` (memo) — product cards
+     - `home/FeaturesSection.jsx` (memo) — feature grid
+     - `home/FAQSection.jsx` (memo + own state) — accordion
+     - `HeroMockup` (inline memo) — mockup animation with isolated state
+     - `HowItWorksSection` (inline memo) — steps
+     - `PreviewSection` (inline memo) — browser mockup preview
+     - HomePortal trimmed from 722 → ~320 lines. All section re-renders now isolated.
+  4. **Console.log Cleanup:** Removed 7 verbose `console.log` calls from `generate.js`. Model failure logs now gated to `NODE_ENV === 'development'` only.
+- Changed:
+  - [tailwind.config.js](file:///D:/CODE/github_readme_builder/tailwind.config.js)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
+  - [src/app/routes/pages/home/ProductsSection.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/home/ProductsSection.jsx) ← NEW
+  - [src/app/routes/pages/home/FeaturesSection.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/home/FeaturesSection.jsx) ← NEW
+  - [src/app/routes/pages/home/FAQSection.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/home/FAQSection.jsx) ← NEW
+  - [server/routes/generate.js](file:///D:/CODE/github_readme_builder/server/routes/generate.js)
+- Next: All Critical + High + Medium + Easy audit items addressed. Full audit complete ✅
+---
+
+### Session 55 — 2026-07-03 (UI & UX Polish)
+- Did: Refined, enhanced, and made the platform fully production-ready:
+  1. **Light Theme Alignment:** Updated `ThemeProvider.jsx` so all vibe configurations use `bg-[#E2DFD2]` for light backgrounds, matching the homepage brand aesthetics.
+  2. **Clickable Branding Logo:** Modified `Dashboard.jsx`, `Projects.jsx`, `ProjectBuilder.jsx`, and `Settings.jsx` to render the identical clickable README Forge SVG logo navigating to `/`.
+  3. **Dashboard Light Mode Polish:** Updated text color states in the welcome banner and project card titles (`text-gray-900 / text-white/95`) to support the cream background in light mode.
+  4. **Open Saved Projects Fix:** Restructured the Dashboard/Projects "Open" action. Project types now write to `readme_forge_project_restore` in `sessionStorage` and navigate to `/project-builder`, which includes a new initialization `useEffect` restoring the state, loading the URL, and jumping directly to the markdown preview.
+  5. **Pricing Section added:** Designed and implemented a responsive, premium `PricingSection` under `home/` showcasing Free, Pro ($5), and Ultra ($20) tiers with perks, and marking purchase buttons as "Coming Soon". Add Pricing link to desktop and mobile navigation menus.
+  6. **ProjectBuilder UI Upgrade:** Overhauled the step 0 form layout with a centered, glowing CPU icon container, refined typography, and border card panels.
+- Changed:
+  - [src/app/providers/ThemeProvider.jsx](file:///D:/CODE/github_readme_builder/src/app/providers/ThemeProvider.jsx)
+  - [src/app/routes/pages/Dashboard.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Dashboard.jsx)
+  - [src/app/routes/pages/Projects.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Projects.jsx)
+  - [src/app/routes/pages/ProjectBuilder.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/ProjectBuilder.jsx)
+  - [src/app/routes/pages/Settings.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/Settings.jsx)
+  - [src/app/routes/pages/NotFound.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/NotFound.jsx)
+  - [src/app/routes/pages/HomePortal.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/HomePortal.jsx)
+  - [src/app/routes/pages/home/PricingSection.jsx](file:///D:/CODE/github_readme_builder/src/app/routes/pages/home/PricingSection.jsx) ← NEW
+  - [brain/memory.md](file:///D:/CODE/github_readme_builder/brain/memory.md)
+- Next: Await further directions.
+---
+
+### Session 56 — 2026-07-03
+- Did: Completed all pending UI bugs and code quality issues from the frontend improvements audit. Fixed React hook violations in `conversationStore.js` and removed layout shifting caused by `Math.random()` in `GeneratePreview.jsx`. Added missing `aria-label`s for accessibility to icon-only buttons across `HomePortal.jsx`, `GeneratePreview.jsx`, `TechPicker.jsx`, `Projects.jsx`, and all wizard steps. Also set `alt=""` for purely decorative generated preview images. The requested pricing page modifications (Pro $5, Ultra $20, coming soon, no popular tags) were verified as complete in the new `PricingSection.jsx`.
+- Changed:
+  - `src/components/conversation/conversationStore.js`
+  - `src/features/generator/GeneratePreview.jsx`
+  - `src/app/routes/pages/HomePortal.jsx`
+  - `src/features/generator/TechPicker.jsx`
+  - `src/app/routes/pages/Projects.jsx`
+  - `src/features/generator/steps/EducationStep.jsx`
+  - `src/features/generator/steps/ExperienceStep.jsx`
+  - `src/features/generator/steps/OpenSourceStep.jsx`
+  - `src/features/generator/steps/ProjectsStep.jsx`
+  - `src/features/generator/steps/LanguagesStep.jsx`
+  - `src/features/generator/steps/StatsStep.jsx`
+  - `src/features/generator/steps/StreakStep.jsx`
+  - `src/features/generator/steps/TrophiesStep.jsx`
+  - `brain/memory.md`
+- Next: Await further requests.
+---
+
+### Session 57 — 2026-07-03
+- Did: Created a checkpoint per the user's request. Also resolved a Vite compilation syntax error in `MarkdownRenderer.jsx` caused by a missing closing parenthesis on `React.memo()`.
+- Changed:
+  - `src/components/common/MarkdownRenderer.jsx`
+  - `brain/memory.md`
+- Next: Await further tasks or requests.
+---

@@ -13,16 +13,20 @@ export default {
           250: '#dcdfe4',
           350: '#babbc2',
           450: '#818894',
-          650: '#4b5260',
+          550: '#6b7280',
+          650: '#4b5260',  // body text muted (was undefined)
+          750: '#374151',
           850: '#1f242e',
+          905: '#111827',  // dark sidebar background (was undefined)
+          955: '#0b0f17',
         },
         indigo: {
           450: '#5a5df0',
           550: '#544df1',
-          650: '#473eeb',
+          650: '#473eeb',  // brand primary button (was undefined)
         },
         purple: {
-          650: '#852ae7',
+          650: '#852ae7',  // brand gradient end (was undefined)
         },
         green: {
           450: '#22b14c',
@@ -31,6 +35,9 @@ export default {
           250: '#86efac',
           450: '#22c38e',
         },
+      },
+      zIndex: {
+        35: '35',  // sticky header between sidebar (z-30) and modal (z-40)
       },
       animation: {
         'shimmer': 'shimmer 2s infinite linear',

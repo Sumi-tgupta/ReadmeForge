@@ -1,5 +1,9 @@
 import { IGNORED_PATHS, IGNORED_EXTENSIONS, IMPORTANT_FILES } from './constants.js';
 
+const ignoredPathsSet = new Set(IGNORED_PATHS);
+const ignoredExtsSet = new Set(IGNORED_EXTENSIONS.filter(ext => ext.startsWith('.')));
+const ignoredExactFilesSet = new Set(IGNORED_EXTENSIONS.filter(ext => !ext.startsWith('.')));
+
 /**
  * Parses and filters a GitHub recursive directory tree.
  * Strips out binaries, lockfiles, node_modules, build directories, etc.
@@ -27,7 +31,7 @@ export function scanTree(tree) {
     const segments = path.split('/');
     
     // 1. Path segment checks: Ignore ignored directories at any hierarchy depth
-    const hasIgnoredSegment = segments.some(segment => IGNORED_PATHS.includes(segment));
+    const hasIgnoredSegment = segments.some(segment => ignoredPathsSet.has(segment));
     if (hasIgnoredSegment) {
       continue;
     }
@@ -40,12 +44,14 @@ export function scanTree(tree) {
       const filenameLower = filename.toLowerCase();
 
       // 2. Extension / file-specific ignore checks
-      const isIgnoredFile = IGNORED_EXTENSIONS.some(ignored => {
-        if (ignored.startsWith('.')) {
-          return filenameLower.endsWith(ignored);
+      let isIgnoredFile = ignoredExactFilesSet.has(filenameLower);
+      if (!isIgnoredFile) {
+        const dotIndex = filenameLower.lastIndexOf('.');
+        if (dotIndex !== -1) {
+          const ext = filenameLower.substring(dotIndex);
+          isIgnoredFile = ignoredExtsSet.has(ext);
         }
-        return filenameLower === ignored;
-      });
+      }
 
       if (isIgnoredFile) {
         continue;

@@ -41,7 +41,7 @@ const UserAvatar = ({ username, name }) => {
   );
 };
 
-export default function ConversationBubble({ message, username, name, children }) {
+export default React.memo(function ConversationBubble({ message, username, name, children }) {
   const { vc, isDark } = useTheme();
   const isAssistant = message.sender === 'assistant';
 
@@ -80,4 +80,5 @@ export default function ConversationBubble({ message, username, name, children }
       <UserAvatar username={username} name={name} />
     </div>
   );
-}
+});
+

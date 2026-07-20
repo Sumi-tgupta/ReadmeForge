@@ -29,7 +29,7 @@ export default function StatsStep() {
       {formData.username && (
         <div className="mt-4">
           <p className={`text-xs mb-2 ${vc.textSec}`}>Preview:</p>
-          <img src={`https://github-readme-stats.vercel.app/api?username=${formData.username}&theme=${formData.statsTheme}&show_icons=true`} alt="Stats Preview" className="max-w-full rounded-lg" />
+          <img src={`https://github-readme-stats.vercel.app/api?username=${formData.username}&theme=${formData.statsTheme}&show_icons=true`} alt="" className="max-w-full rounded-lg" />
         </div>
       )}
     </div>

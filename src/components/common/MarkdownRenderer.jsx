@@ -1,10 +1,11 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 
 /**
  * Premium, light-weight regex-based Markdown Renderer component.
  * Supports headers, lists, code fences, inline code, bold, italic, links, images, horizontal lines, tables, and blockquotes.
  */
-export default function MarkdownRenderer({ content }) {
+export default React.memo(function MarkdownRenderer({ content }) {
   if (!content) return null;
 
   const blocks = [];
@@ -163,7 +164,7 @@ export default function MarkdownRenderer({ content }) {
     // Inline Code snippets
     html = html.replace(/`(.*?)`/g, '<code class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-rose-500 font-mono text-[11px] border border-gray-250 dark:border-gray-700">$1</code>');
 
-    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />;
   };
 
   return (
@@ -264,4 +265,4 @@ export default function MarkdownRenderer({ content }) {
       })}
     </div>
   );
-}
+});

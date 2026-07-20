@@ -29,7 +29,7 @@ export default function OpenSourceStep() {
           <div key={i} className="flex gap-2 items-center">
             <input type="text" value={l.label} onChange={e => updateLink(i, 'label', e.target.value)} placeholder="Label" className={`flex-1 px-3 py-2 rounded-lg text-sm outline-none transition-all ${vc.input}`} />
             <input type="text" value={l.url} onChange={e => updateLink(i, 'url', e.target.value)} placeholder="URL" className={`flex-1 px-3 py-2 rounded-lg text-sm outline-none transition-all ${vc.input}`} />
-            <button onClick={() => removeLink(i)} className="p-1 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+            <button onClick={() => removeLink(i)} className="p-1 hover:text-red-500" aria-label="Remove link"><Trash2 className="w-4 h-4" /></button>
           </div>
         ))}
       </div>

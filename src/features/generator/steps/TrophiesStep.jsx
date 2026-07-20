@@ -17,7 +17,7 @@ export default function TrophiesStep() {
       {formData.username && (
         <div className="mt-4">
           <p className={`text-xs mb-2 ${vc.textSec}`}>Preview:</p>
-          <img src={`https://github-profile-trophy.vercel.app/?username=${formData.username}&theme=${formData.trophyTheme}${formData.trophyRank !== 'All' ? `&rank=${formData.trophyRank}` : ''}&no-frame=true&margin-w=10`} alt="Trophies Preview" className="max-w-full rounded-lg" />
+          <img src={`https://github-profile-trophy.vercel.app/?username=${formData.username}&theme=${formData.trophyTheme}${formData.trophyRank !== 'All' ? `&rank=${formData.trophyRank}` : ''}&no-frame=true&margin-w=10`} alt="" className="max-w-full rounded-lg" />
         </div>
       )}
     </div>

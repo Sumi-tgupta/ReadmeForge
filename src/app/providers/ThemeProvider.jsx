@@ -44,7 +44,7 @@ function getVibeClasses(vibe, isDark) {
     },
     bold: {
       light: {
-        bg:'bg-slate-50', surface:'bg-white border border-purple-200 shadow-sm shadow-purple-100/50', text:'text-slate-900',
+        bg:'bg-[#E2DFD2]', surface:'bg-white border border-purple-200 shadow-sm shadow-purple-100/50', text:'text-slate-900',
         textSec:'text-slate-500', input:'bg-white border border-purple-200 text-slate-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500',
         btn:'bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white shadow-lg shadow-purple-200',
         btnSec:'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200',
@@ -64,7 +64,7 @@ function getVibeClasses(vibe, isDark) {
     },
     github: {
       light: {
-        bg:'bg-white', surface:'bg-[#f6f8fa] border border-[#d0d7de]', text:'text-[#1f2328]',
+        bg:'bg-[#E2DFD2]', surface:'bg-[#f6f8fa] border border-[#d0d7de]', text:'text-[#1f2328]',
         textSec:'text-[#656d76]', input:'bg-white border border-[#d0d7de] text-[#1f2328] focus:ring-2 focus:ring-[#0969da] focus:border-[#0969da]',
         btn:'bg-[#2ea44f] hover:bg-[#2c974b] text-white border border-[#1b7f37]',
         btnSec:'bg-[#f6f8fa] hover:bg-[#e7ecf0] text-[#24292f] border border-[#d0d7de]',

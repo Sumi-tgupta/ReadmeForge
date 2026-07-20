@@ -4,7 +4,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 /**
  * Reusable toggle switch with label.
  */
-export default function ToggleSwitch({ label, value, onChange }) {
+export default React.memo(function ToggleSwitch({ label, value, onChange }) {
   const { vc, isDark } = useTheme();
 
   return (

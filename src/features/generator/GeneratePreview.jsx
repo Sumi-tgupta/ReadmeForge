@@ -25,6 +25,11 @@ export default function GeneratePreview() {
   const [isSaving, setIsSaving] = useState(false);
   const [projectId, setProjectId] = useState(null);
 
+  const skeletonWidths = React.useMemo(() => ({
+    top: [...Array(8)].map(() => `${60 + Math.random() * 40}%`),
+    bottom: [...Array(4)].map(() => `${40 + Math.random() * 50}%`)
+  }), []);
+
   const {
     formData,
     generatedMarkdown,
@@ -152,6 +157,7 @@ export default function GeneratePreview() {
         <button
           onClick={() => setGhPreviewDark(d => !d)}
           className={`p-1 rounded transition-colors ${ghPreviewDark ? 'text-[#8b949e] hover:text-[#e6edf3]' : 'text-gray-500 hover:text-gray-800'}`}
+          aria-label="Toggle GitHub Preview Theme"
         >
           {ghPreviewDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
@@ -287,12 +293,12 @@ export default function GeneratePreview() {
           {!mdToRender ? (
             isGenerating ? (
               <div className="space-y-4 p-6">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="h-4 rounded-full shimmer-bg" style={{ width: `${60 + Math.random() * 40}%` }} />
+                {skeletonWidths.top.map((width, i) => (
+                  <div key={i} className="h-4 rounded-full shimmer-bg" style={{ width }} />
                 ))}
                 <div className="h-8 my-4" />
-                {[...Array(4)].map((_, i) => (
-                  <div key={`b-${i}`} className="h-3 rounded-full shimmer-bg" style={{ width: `${40 + Math.random() * 50}%` }} />
+                {skeletonWidths.bottom.map((width, i) => (
+                  <div key={`b-${i}`} className="h-3 rounded-full shimmer-bg" style={{ width }} />
                 ))}
               </div>
             ) : (

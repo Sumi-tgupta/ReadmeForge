@@ -1,20 +1,23 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useGenerator } from '../../hooks/useGenerator';
+import { useState, useEffect, useCallback, useRef, useContext } from 'react';
+import { GeneratorContext } from '../../hooks/useGenerator';
 import { conversationCache } from './conversationCache';
 import { ConversationEngine } from './conversationEngine';
 import { PROFILE_QUESTIONS, PROJECT_QUESTIONS } from './questionRegistry';
+
+/**
+ * Safe wrapper to read the generator context.
+ */
+function useSafeGenerator() {
+  return useContext(GeneratorContext) || null;
+}
 
 /**
  * Hook to manage conversation state, messages, caching, and navigation command actions.
  * Integrates directly with the parent useGenerator form state.
  */
 export function useConversationStore(builderType = 'profile') {
-  let generatorContext = null;
-  try {
-    generatorContext = useGenerator();
-  } catch (e) {
-    // Context is not available (e.g., in ProjectBuilder)
-  }
+  const generatorContext = useSafeGenerator();
+
 
   const [localFormData, setLocalFormData] = useState({
     name: '',

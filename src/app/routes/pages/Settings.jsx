@@ -2,7 +2,7 @@ import React from 'react';
 import { useTheme } from '../../providers/ThemeProvider';
 import { useToast } from '../../providers/ToastProvider';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../../../hooks/useSEO';
 
@@ -34,24 +34,38 @@ export default function Settings() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="min-h-screen bg-[#0D1117] text-[#F3F4F6] flex flex-col"
+      className={`min-h-screen ${isDark ? 'bg-gray-955' : 'bg-[#E2DFD2]'} ${vc.text} flex flex-col`}
     >
       {/* Sub Header */}
-      <div className="border-b border-white/5 bg-[#161B22]/50 px-6 py-4 flex items-center justify-between">
+      <div className={`border-b px-6 py-4 flex items-center justify-between ${
+        isDark ? 'border-white/5 bg-gray-900/50' : 'border-gray-200 bg-white/60'
+      }`}>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/')}
-            className="p-2 rounded-lg border border-white/5 bg-[#161B22] text-[#9CA3AF] hover:text-white transition-colors"
+            className={`p-2 rounded-lg border transition-colors ${
+              isDark ? 'border-white/5 bg-gray-900 text-gray-400 hover:text-white' : 'border-gray-200 bg-white text-gray-500 hover:text-gray-900 shadow-sm'
+            }`}
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="text-left">
-            <h1 className="text-base font-bold text-white">
+
+          {/* Clickable Brand Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center shadow-lg shadow-indigo-500/15 group-hover:scale-105 transition-all duration-300">
+              <Terminal className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-gray-950 dark:from-white to-gray-500 dark:to-gray-400 bg-clip-text text-transparent hidden sm:block">
+              README<span className="text-indigo-600 dark:text-indigo-400 ml-0.5">Forge</span>
+            </span>
+          </Link>
+
+          <div className={`h-5 w-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'} hidden sm:block`} />
+
+          <div className="text-left hidden sm:block">
+            <h1 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               System Settings
             </h1>
-            <p className="text-[10px] text-[#9CA3AF]">
-              Configure system themes and view database profiles
-            </p>
           </div>
         </div>
       </div>
@@ -60,14 +74,16 @@ export default function Settings() {
       <div className="flex-1 max-w-xl w-full mx-auto px-6 py-12 space-y-6">
         
         {/* Interface Options */}
-        <div className="p-6 rounded-2xl border border-white/5 bg-[#161B22]/40 space-y-4 text-left">
-          <h2 className="text-sm font-bold text-white">
+        <div className={`p-6 rounded-2xl border space-y-4 text-left ${
+          isDark ? 'border-white/5 bg-gray-900/40' : 'border-gray-200 bg-white shadow-sm'
+        }`}>
+          <h2 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Interface Options
           </h2>
           
           <div className="space-y-3">
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-[#9CA3AF]">Active Vibe / Design Theme</span>
+              <span className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Active Vibe / Design Theme</span>
               <div className="grid grid-cols-3 gap-2">
                 {['light', 'dark', 'system'].map((t) => (
                   <button
@@ -75,8 +91,10 @@ export default function Settings() {
                     onClick={() => handleThemeChange(t)}
                     className={`py-2 text-[10px] uppercase font-bold rounded-lg border transition-all ${
                       theme === t 
-                        ? 'bg-[#5B8CFF]/15 text-[#5B8CFF] border-[#5B8CFF]/25' 
-                        : 'bg-[#161B22] border-white/5 text-[#9CA3AF] hover:text-white'
+                        ? 'bg-indigo-500/15 text-indigo-500 border-indigo-500/25' 
+                        : isDark
+                          ? 'bg-gray-900 border-white/5 text-gray-400 hover:text-white'
+                          : 'bg-gray-50 border-gray-200 text-gray-500 hover:text-gray-900'
                     }`}
                   >
                     {t}
@@ -85,8 +103,8 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="space-y-1 pt-3 border-t border-white/5">
-              <span className="text-xs font-semibold text-[#9CA3AF]">Builder Style</span>
+            <div className={`space-y-1 pt-3 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
+              <span className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Builder Style</span>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'classic', label: 'Classic Wizard' },
@@ -100,8 +118,10 @@ export default function Settings() {
                     }}
                     className={`py-2 text-[10px] uppercase font-bold rounded-lg border transition-all ${
                       builderStyle === style.id 
-                        ? 'bg-[#5B8CFF]/15 text-[#5B8CFF] border-[#5B8CFF]/25' 
-                        : 'bg-[#161B22] border-white/5 text-[#9CA3AF] hover:text-white'
+                        ? 'bg-indigo-500/15 text-indigo-500 border-indigo-500/25' 
+                        : isDark
+                          ? 'bg-gray-900 border-white/5 text-gray-400 hover:text-white'
+                          : 'bg-gray-50 border-gray-200 text-gray-500 hover:text-gray-900'
                     }`}
                   >
                     {style.label}
@@ -112,21 +132,23 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* SQLite Database Details */}
-        <div className="p-6 rounded-2xl border border-white/5 bg-[#161B22]/40 space-y-3 text-xs text-[#9CA3AF] text-left">
-          <h2 className="text-sm font-bold text-white">
-            SQLite Database Details
+        {/* Database Details */}
+        <div className={`p-6 rounded-2xl border space-y-3 text-xs text-left ${
+          isDark ? 'border-white/5 bg-gray-900/40 text-gray-400' : 'border-gray-200 bg-white text-gray-500 shadow-sm'
+        }`}>
+          <h2 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Database Details
           </h2>
-          <div className="flex justify-between py-1.5 border-b border-white/5">
-            <span>Path:</span>
-            <span className="text-white font-semibold font-mono">data/readme-forge.db</span>
+          <div className={`flex justify-between py-1.5 border-b ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+            <span>Provider:</span>
+            <span className={`font-semibold font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>Supabase (PostgreSQL)</span>
           </div>
-          <div className="flex justify-between py-1.5 border-b border-white/5">
+          <div className={`flex justify-between py-1.5 border-b ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
             <span>Tables:</span>
-            <span className="text-white font-semibold font-mono">users, projects, sessions, generation_history</span>
+            <span className={`font-semibold font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>users, projects, sessions, generation_history</span>
           </div>
           <p className="text-[10px] leading-relaxed pt-2">
-            SQLite stores user login hashes, cost accounting data, saved configurations, and caching hash references safely.
+            Supabase (PostgreSQL) stores user profiles, saved projects, session tokens, and generation usage logs.
           </p>
         </div>
       </div>

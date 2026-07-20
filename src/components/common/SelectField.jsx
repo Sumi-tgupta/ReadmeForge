@@ -4,7 +4,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 /**
  * Reusable select dropdown with label.
  */
-export default function SelectField({ label, value, onChange, options }) {
+export default React.memo(function SelectField({ label, value, onChange, options }) {
   const { vc, fontClass } = useTheme();
 
   return (
@@ -23,4 +23,5 @@ export default function SelectField({ label, value, onChange, options }) {
       </select>
     </div>
   );
-}
+});
+

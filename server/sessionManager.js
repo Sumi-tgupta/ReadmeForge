@@ -1,20 +1,20 @@
 import { getDb } from './db/connection.js';
 import { v4 as uuidv4 } from 'uuid';
+import * as cookie from 'cookie';
 
 const SESSION_COOKIE_NAME = 'session_id';
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /**
- * Parse cookies manually from headers
+ * Parse cookies using standard package
  */
 function parseCookies(cookieHeader) {
-  const list = {};
-  if (!cookieHeader) return list;
-  cookieHeader.split(';').forEach(cookie => {
-    const parts = cookie.split('=');
-    list[parts.shift().trim()] = decodeURI(parts.join('='));
-  });
-  return list;
+  if (!cookieHeader) return {};
+  try {
+    return cookie.parse(cookieHeader);
+  } catch (e) {
+    return {};
+  }
 }
 
 export const sessionManager = {
@@ -40,11 +40,15 @@ export const sessionManager = {
       throw error;
     }
 
-    // Set secure cookie
+    // Set secure session cookie
+    // In production (Vercel frontend + Render backend = different domains),
+    // SameSite=Lax blocks cross-origin cookie sends. Use SameSite=None; Secure instead.
     const isProduction = process.env.NODE_ENV === 'production';
-    let cookieStr = `${SESSION_COOKIE_NAME}=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DURATION_MS / 1000}`;
+    let cookieStr = `${SESSION_COOKIE_NAME}=${sessionId}; Path=/; HttpOnly; Max-Age=${SESSION_DURATION_MS / 1000}`;
     if (isProduction) {
-      cookieStr += '; Secure';
+      cookieStr += '; SameSite=None; Secure';
+    } else {
+      cookieStr += '; SameSite=Lax';
     }
 
     res.setHeader('Set-Cookie', cookieStr);
@@ -113,9 +117,11 @@ export const sessionManager = {
     }
 
     const isProduction = process.env.NODE_ENV === 'production';
-    let cookieStr = `${SESSION_COOKIE_NAME}=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DURATION_MS / 1000}`;
+    let cookieStr = `${SESSION_COOKIE_NAME}=${sessionId}; Path=/; HttpOnly; Max-Age=${SESSION_DURATION_MS / 1000}`;
     if (isProduction) {
-      cookieStr += '; Secure';
+      cookieStr += '; SameSite=None; Secure';
+    } else {
+      cookieStr += '; SameSite=Lax';
     }
 
     res.setHeader('Set-Cookie', cookieStr);

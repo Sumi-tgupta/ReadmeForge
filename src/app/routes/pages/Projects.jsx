@@ -7,7 +7,7 @@ import {
   FolderGit2, Search, ArrowLeft, Star, Grid, List, 
   Trash2, Copy, Edit2, Play, Plus, Clock, RefreshCw, LayoutDashboard
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../../../hooks/useSEO';
 
@@ -87,25 +87,32 @@ export default function Projects() {
   };
 
   const handleOpen = (proj) => {
-    // Save state back to sessionStorage to let builder pick it up
-    window.sessionStorage.setItem('readme_forge_chat_profile', JSON.stringify({
-      formData: JSON.parse(proj.input_data || '{}'),
-      currentQuestionId: 'review'
-    }));
-    navigate(proj.builder_type === 'project' ? '/project-builder' : '/profile-builder');
+    if (proj.builder_type === 'project') {
+      window.sessionStorage.setItem('readme_forge_project_restore', JSON.stringify({
+        repoUrl: JSON.parse(proj.input_data || '{}').repoUrl || proj.title || '',
+        generatedMarkdown: proj.output_data || ''
+      }));
+      navigate('/project-builder');
+    } else {
+      window.sessionStorage.setItem('readme_forge_chat_profile', JSON.stringify({
+        formData: JSON.parse(proj.input_data || '{}'),
+        currentQuestionId: 'review'
+      }));
+      navigate('/profile-builder');
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0D1117] flex flex-col justify-center items-center gap-4 font-sans select-none">
+      <div className={`min-h-screen ${isDark ? 'bg-gray-955' : 'bg-[#E2DFD2]'} flex flex-col justify-center items-center gap-4 font-sans select-none`}>
         <RefreshCw className="w-8 h-8 text-[#5B8CFF] animate-spin" />
-        <span className="text-xs text-[#9CA3AF]">Loading saved configurations...</span>
+        <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading saved configurations...</span>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${vc.bg} ${vc.text} transition-colors duration-300 font-sans text-left`}>
+    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-gray-955' : 'bg-[#E2DFD2]'} ${vc.text} transition-colors duration-300 font-sans text-left`}>
       
       {/* Header bar */}
       <header className={`border-b shrink-0 px-6 py-4 flex items-center justify-between sticky top-0 z-35 ${
@@ -122,12 +129,24 @@ export default function Projects() {
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <h1 className="text-sm font-bold flex items-center gap-2">
+          
+          {/* Clickable Brand Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center shadow-lg shadow-indigo-500/15 group-hover:scale-105 transition-all duration-300">
+              <Terminal className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-gray-950 dark:from-white to-gray-500 dark:to-gray-400 bg-clip-text text-transparent hidden sm:block">
+              README<span className="text-indigo-600 dark:text-indigo-400 ml-0.5">Forge</span>
+            </span>
+          </Link>
+          
+          <div className={`h-5 w-px ${isDark ? 'bg-gray-800' : 'bg-gray-200'} hidden sm:block`} />
+
+          <div className="text-left hidden sm:block">
+            <h1 className="text-xs font-bold flex items-center gap-1.5 text-gray-500">
               <FolderGit2 className="w-4.5 h-4.5 text-indigo-500" />
               My Saved READMEs
             </h1>
-            <p className="text-[10px] text-gray-500">Manage and edit your saved configurations</p>
           </div>
         </div>
 
@@ -224,6 +243,7 @@ export default function Projects() {
                     <button 
                       onClick={() => handleFavorite(proj.id)}
                       className="p-0.5 hover:scale-110 transition-transform"
+                      aria-label="Toggle favorite"
                     >
                       <Star className={`w-4 h-4 ${proj.is_favorite === 1 ? 'text-amber-400 fill-amber-400' : 'text-gray-500'}`} />
                     </button>
@@ -255,6 +275,7 @@ export default function Projects() {
                       onClick={() => handleDuplicate(proj.id)}
                       className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-white"
                       title="Duplicate"
+                      aria-label="Duplicate project"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
@@ -262,6 +283,7 @@ export default function Projects() {
                       onClick={() => handleDelete(proj.id)}
                       className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-500"
                       title="Delete"
+                      aria-label="Delete project"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -283,7 +305,7 @@ export default function Projects() {
             {filteredProjects.map(proj => (
               <div key={proj.id} className="p-4 flex items-center justify-between hover:bg-gray-150/10 transition-colors">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <button onClick={() => handleFavorite(proj.id)}>
+                  <button onClick={() => handleFavorite(proj.id)} aria-label="Toggle favorite">
                     <Star className={`w-4 h-4 ${proj.is_favorite === 1 ? 'text-amber-400 fill-amber-400' : 'text-gray-500'}`} />
                   </button>
                   <div className="truncate text-left">
@@ -309,12 +331,14 @@ export default function Projects() {
                   <button 
                     onClick={() => handleDuplicate(proj.id)}
                     className="p-1 text-gray-550 hover:text-white"
+                    aria-label="Duplicate project"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </button>
                   <button 
                     onClick={() => handleDelete(proj.id)}
                     className="p-1 text-gray-550 hover:text-red-500"
+                    aria-label="Delete project"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

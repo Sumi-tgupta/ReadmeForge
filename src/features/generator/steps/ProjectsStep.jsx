@@ -45,7 +45,7 @@ export default function ProjectsStep() {
                 <span className="font-medium text-sm">{pr.name || `Project ${i + 1}`}</span>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={(e) => { e.stopPropagation(); removeProject(i); }} className="p-1 hover:text-red-500 transition-colors">
+                <button onClick={(e) => { e.stopPropagation(); removeProject(i); }} className="p-1 hover:text-red-500 transition-colors" aria-label="Remove project">
                   <Trash2 className="w-4 h-4" />
                 </button>
                 {expandedProject === i ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

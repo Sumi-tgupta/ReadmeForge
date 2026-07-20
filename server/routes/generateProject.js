@@ -17,7 +17,7 @@ import { getPersistentCache, setPersistentCache } from '../models/repositoryCach
 
 const router = Router();
 
-// Rate limit: 10/min for free users, 60/min for premium
+// Rate limit: 10/min for authenticated free users, 60/min for premium
 const generateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: (req) => req.user?.plan === 'premium' ? 60 : 10,
@@ -26,11 +26,21 @@ const generateLimiter = rateLimit({
   message: { error: 'Project generation rate limit reached. Please wait a moment.' },
 });
 
+// Strict IP-based rate limit for anonymous (guest) users: 3 generations per hour
+const guestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => !!req.user,
+  message: { error: 'Guest generation limit reached (3/hour). Sign in to continue building.' },
+});
+
 /**
  * POST /api/generate/project
  * Coordinates the full project generation intelligence engine pipeline.
  */
-router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
+router.post('/', optionalAuth, guestLimiter, generateLimiter, async (req, res, next) => {
   const clientId = getClientId(req);
   const { repoUrl, mode = 'standard' } = req.body;
 
@@ -188,11 +198,11 @@ Structure the README with:
 
     // 7. Write to persistent SQLite cache
     const dbKey = buildCacheKey(owner, repo, repoData.repository.defaultBranch, mode);
-    setPersistentCache(dbKey, owner, repo, repoData.repository, repoData, result.text, mode);
+    await setPersistentCache(dbKey, owner, repo, repoData.repository, repoData, result.text, mode);
 
     // 8. Track usage logs in db
     try {
-      trackUsage(req.user?.id, usedModel, result.usage, dbKey);
+      await trackUsage(req.user?.id, usedModel, result.usage, dbKey);
     } catch (trackErr) {
       console.error('[Project Generate] Usage tracking error:', trackErr.message);
     }

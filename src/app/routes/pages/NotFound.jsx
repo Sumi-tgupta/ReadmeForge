@@ -13,7 +13,7 @@ const pageVariants = {
 };
 
 export default function NotFound() {
-  const { vc } = useTheme();
+  const { vc, isDark } = useTheme();
 
   useSEO({
     title: '404 Page Not Found',
@@ -27,7 +27,7 @@ export default function NotFound() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="min-h-screen bg-[#0D1117] text-[#F3F4F6] flex flex-col justify-center items-center p-6 text-center"
+      className={`min-h-screen ${isDark ? 'bg-gray-955' : 'bg-[#E2DFD2]'} ${vc.text} flex flex-col justify-center items-center p-6 text-center`}
     >
       <div className="space-y-6 max-w-md">
         <div className="w-16 h-16 rounded-2xl bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center mx-auto text-[#EF4444]">
@@ -35,8 +35,8 @@ export default function NotFound() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">404: Route Not Found</h1>
-          <p className="text-sm text-[#9CA3AF] leading-relaxed">
+          <h1 className={`text-3xl font-extrabold tracking-tight sm:text-4xl ${isDark ? 'text-white' : 'text-gray-900'}`}>404: Route Not Found</h1>
+          <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             The page you are trying to visit does not exist or has been relocated to another workspace route.
           </p>
         </div>

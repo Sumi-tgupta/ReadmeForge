@@ -25,7 +25,7 @@ export default function ExperienceStep() {
           <div key={i} className={`p-4 rounded-xl ${vc.card}`}>
             <div className="flex justify-between items-start mb-3">
               <span className={`text-sm font-medium ${vc.textSec}`}>Experience {i + 1}</span>
-              <button onClick={() => removeExp(i)} className="p-1 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+              <button onClick={() => removeExp(i)} className="p-1 hover:text-red-500 transition-colors" aria-label="Remove experience entry"><Trash2 className="w-4 h-4" /></button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
               <InputField label="Company" value={ex.company} onChange={v => updateExp(i, 'company', v)} placeholder="Acme Corp" />

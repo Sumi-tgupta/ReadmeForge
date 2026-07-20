@@ -4,9 +4,14 @@
  */
 
 import { createHash } from 'crypto';
+import { LRUCache } from 'lru-cache';
 
-const cache = new Map();
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+const cache = new LRUCache({
+  max: 500,
+  ttl: DEFAULT_TTL_MS,
+});
 
 let hits = 0;
 let misses = 0;
@@ -35,15 +40,8 @@ export function getCached(hash) {
     return null;
   }
 
-  // Check TTL
-  if (Date.now() - entry.timestamp > DEFAULT_TTL_MS) {
-    cache.delete(hash);
-    misses++;
-    return null;
-  }
-
   hits++;
-  return entry.markdown;
+  return entry;
 }
 
 /**
@@ -52,16 +50,7 @@ export function getCached(hash) {
  * @param {string} markdown
  */
 export function setCache(hash, markdown) {
-  // Evict oldest entries if cache gets too large (max 500 entries)
-  if (cache.size >= 500) {
-    const oldestKey = cache.keys().next().value;
-    cache.delete(oldestKey);
-  }
-
-  cache.set(hash, {
-    markdown,
-    timestamp: Date.now(),
-  });
+  cache.set(hash, markdown);
 }
 
 /**

@@ -40,7 +40,7 @@ export default function EducationStep() {
         {formData.educationEntries.map((e, i) => (
           <div key={i} className={`p-4 rounded-xl ${vc.card}`}>
             <div className="flex justify-end mb-2">
-              <button onClick={() => removeEdu(i)} className="p-1 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+              <button onClick={() => removeEdu(i)} className="p-1 hover:text-red-500" aria-label="Remove education entry"><Trash2 className="w-4 h-4" /></button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-3">
               <InputField label="Institution" value={e.institution} onChange={v => updateEdu(i, 'institution', v)} placeholder="MIT" />
@@ -61,7 +61,7 @@ export default function EducationStep() {
         {formData.certifications.map((c, i) => (
           <div key={i} className={`p-4 rounded-xl ${vc.card}`}>
             <div className="flex justify-end mb-2">
-              <button onClick={() => removeCert(i)} className="p-1 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+              <button onClick={() => removeCert(i)} className="p-1 hover:text-red-500" aria-label="Remove certification entry"><Trash2 className="w-4 h-4" /></button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
               <InputField label="Name" value={c.name} onChange={v => updateCert(i, 'name', v)} placeholder="AWS Solutions Architect" />

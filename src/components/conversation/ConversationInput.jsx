@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, CornerDownLeft } from 'lucide-react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 
-export default function ConversationInput({ onSubmit, disabled, placeholder = 'Type a message or command (e.g. /back, /skip, /restart)...' }) {
+export default React.memo(function ConversationInput({ onSubmit, disabled, placeholder = 'Type a message or command (e.g. /back, /skip, /restart)...' }) {
   const { vc, isDark } = useTheme();
   const [text, setText] = useState('');
   const textareaRef = useRef(null);
@@ -57,10 +57,9 @@ export default function ConversationInput({ onSubmit, disabled, placeholder = 'T
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className={`flex-1 max-h-[200px] min-h-[40px] px-3.5 py-2.5 outline-none resize-none bg-transparent text-sm leading-relaxed border-0 ring-0 focus:ring-0 focus:border-0 ${
+          className={`flex-1 max-h-[200px] min-h-[40px] h-auto px-3.5 py-2.5 outline-none resize-none bg-transparent text-sm leading-relaxed border-0 ring-0 focus:ring-0 focus:border-0 ${
             isDark ? 'text-gray-100 placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'
           }`}
-          style={{ height: 'auto' }}
         />
 
         <div className="flex items-center gap-1.5 px-2 py-1 shrink-0">
@@ -90,4 +89,5 @@ export default function ConversationInput({ onSubmit, disabled, placeholder = 'T
       </p>
     </form>
   );
-}
+});
+

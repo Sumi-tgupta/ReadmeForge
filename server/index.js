@@ -13,9 +13,14 @@ import { errorHandler } from './middleware/errorHandler.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+if (process.env.NODE_ENV === 'production' && corsOrigin === 'http://localhost:5173') {
+  console.warn('⚠️ WARNING: CORS is defaulting to localhost in production! Please set CORS_ORIGIN.');
+}
+
 // --- Middleware ---
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: corsOrigin,
   credentials: true,
 }));
 

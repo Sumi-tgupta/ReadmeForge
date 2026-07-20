@@ -211,3 +211,33 @@ CREATE POLICY "Allow service role full access on user_settings" ON user_settings
 
 DROP POLICY IF EXISTS "Users can perform CRUD on their own settings" ON user_settings;
 CREATE POLICY "Users can perform CRUD on their own settings" ON user_settings FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================================
+-- 5. HELPER FUNCTIONS
+-- ============================================================================
+
+-- Atomic credit deduction routine to prevent TOCTOU double-spend exploits
+CREATE OR REPLACE FUNCTION deduct_user_credit(user_uuid UUID)
+RETURNS INT AS $$
+DECLARE
+  current_plan VARCHAR(50);
+  current_credits INT;
+  new_credits INT;
+BEGIN
+  -- Get current plan and credits
+  SELECT plan, credits INTO current_plan, current_credits FROM users WHERE id = user_uuid;
+  
+  IF current_plan = 'premium' THEN
+    RETURN -1;
+  END IF;
+
+  new_credits := GREATEST(0, COALESCE(current_credits, 0) - 1);
+
+  UPDATE users 
+  SET credits = new_credits,
+      updated_at = CURRENT_TIMESTAMP
+  WHERE id = user_uuid;
+
+  RETURN new_credits;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

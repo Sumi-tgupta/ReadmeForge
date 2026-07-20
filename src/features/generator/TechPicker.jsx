@@ -97,7 +97,7 @@ export default function TechPicker({ selected, onToggle, title }) {
             return tech ? (
               <span key={id} className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium animate-pop ${vc.chip}`}>
                 {tech.name}
-                <button onClick={() => onToggle(id)} className="hover:opacity-70">
+                <button onClick={() => onToggle(id)} className="hover:opacity-70" aria-label={`Remove ${tech.name}`}>
                   <X className="w-3 h-3" />
                 </button>
               </span>

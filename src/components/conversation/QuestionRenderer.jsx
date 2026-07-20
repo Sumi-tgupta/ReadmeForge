@@ -4,7 +4,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import TechPicker from '../../features/generator/TechPicker';
 import { UNIQUE_TECHS } from '../../constants/techs';
 
-export default function QuestionRenderer({ question, generator, onSubmit }) {
+export default React.memo(function QuestionRenderer({ question, generator, onSubmit }) {
   const { vc, isDark } = useTheme();
   const { formData, updateForm, updateSocial, toggleTech, toggleLearningTech } = generator;
 
@@ -442,4 +442,5 @@ export default function QuestionRenderer({ question, generator, onSubmit }) {
 
   // DEFAULT FALLBACK (simple field inputs can be typed or clicked)
   return null;
-}
+});
+

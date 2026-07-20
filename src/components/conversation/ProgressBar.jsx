@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 
-export default function ProgressBar({ percentage = 0 }) {
+export default React.memo(function ProgressBar({ percentage = 0 }) {
   const { vc } = useTheme();
 
   return (
@@ -12,4 +12,5 @@ export default function ProgressBar({ percentage = 0 }) {
       />
     </div>
   );
-}
+});
+

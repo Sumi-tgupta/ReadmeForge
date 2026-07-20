@@ -6,7 +6,7 @@ import {
   Download, Edit2, Eye, FileText, Check, AlertCircle, RefreshCw,
   Loader2, CircleDot
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MarkdownRenderer from '../../../components/common/MarkdownRenderer';
 import ConversationLayout from '../../../components/conversation/ConversationLayout';
@@ -42,10 +42,6 @@ export default function ProjectBuilder() {
   });
 
   const isChatRoute = location.pathname.endsWith('/chat') || builderStyle === 'conversation';
-
-  if (isChatRoute) {
-    return <ConversationLayout builderType="project" />;
-  }
 
   // Inputs
   const [repoUrl, setRepoUrl] = useState('');
@@ -83,10 +79,35 @@ export default function ProjectBuilder() {
     return () => stageTimers.forEach(clearTimeout);
   }, [currentStep, isGenerating]);
 
+  // Restore saved session from dashboard or projects list
+  useEffect(() => {
+    const cached = window.sessionStorage.getItem('readme_forge_project_restore');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.repoUrl) setRepoUrl(parsed.repoUrl);
+        if (parsed.generatedMarkdown) {
+          setGeneratedMarkdown(parsed.generatedMarkdown);
+          setEditMarkdown(parsed.generatedMarkdown);
+          setCurrentStep(2);
+        }
+        window.sessionStorage.removeItem('readme_forge_project_restore');
+      } catch (err) {
+        console.error('Failed to restore project builder session', err);
+      }
+    }
+  }, []);
+
+  // Early return for conversational mode - MUST be placed below all hooks definitions
+  if (isChatRoute) {
+    return <ConversationLayout builderType="project" />;
+  }
+
   const handleScan = async (e) => {
     e.preventDefault();
-    if (!repoUrl.trim()) {
-      showToast('Please enter a valid public GitHub URL');
+    const GITHUB_REPO_REGEX = /^https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/?$/;
+    if (!repoUrl.trim() || !GITHUB_REPO_REGEX.test(repoUrl.trim())) {
+      showToast('Please enter a valid public GitHub repository URL (e.g. https://github.com/owner/repo)');
       return;
     }
 
@@ -199,34 +220,56 @@ export default function ProjectBuilder() {
       exit="exit"
       className={`min-h-screen ${vc.bg} ${vc.text} flex flex-col transition-colors duration-300`}
     >
-      {/* Sub Header */}
-      <div className={`border-b ${isDark ? 'border-gray-800 bg-gray-900/80' : 'border-gray-200 bg-white/80'} backdrop-blur-md px-6 py-4 flex items-center justify-between transition-colors`}>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/')}
-            className={`p-2 rounded-lg border ${isDark ? 'border-gray-800 bg-gray-900 hover:text-white' : 'border-gray-200 bg-white hover:text-gray-950'} text-gray-500 transition-colors`}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div className="text-left">
-            <h1 className="text-base font-bold flex items-center gap-2">
-              <Terminal className="w-4.5 h-4.5 text-indigo-650 dark:text-indigo-400" />
+      {/* Sub Header / Top Nav */}
+      <div className={`border-b shrink-0 px-6 py-4 flex items-center justify-between sticky top-0 z-35 ${
+        isDark ? 'border-gray-800 bg-gray-950/85' : 'border-gray-250 bg-white/85'
+      } backdrop-blur-md transition-colors`}>
+        <div className="flex items-center gap-4">
+          {/* Logo - clickable */}
+          <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center shadow-lg shadow-indigo-500/15 group-hover:scale-105 transition-all duration-300">
+              <Terminal className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-gray-950 dark:from-white to-gray-500 dark:to-gray-400 bg-clip-text text-transparent">
+              README<span className="text-indigo-600 dark:text-indigo-400 ml-0.5">Forge</span>
+            </span>
+          </Link>
+          
+          <div className={`h-5 w-px ${isDark ? 'bg-gray-850' : 'bg-gray-200'} hidden sm:block`} />
+          
+          <div className="text-left hidden sm:block">
+            <h1 className="text-xs font-bold flex items-center gap-1.5 text-gray-500">
+              <Cpu className="w-4 h-4 text-indigo-500" />
               Project README Generator
             </h1>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
-              Analyze repository details to generate production-quality project docs
-            </p>
           </div>
         </div>
 
-        {currentStep === 2 && (
+        <div className="flex items-center gap-2">
           <button 
-            onClick={handleReset}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${isDark ? 'border-gray-800 bg-gray-900 text-gray-400 hover:text-white' : 'border-gray-200 bg-white text-gray-650 hover:text-gray-950'} text-xs font-semibold transition-colors`}
+            onClick={() => navigate('/')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
+              isDark 
+                ? 'border-gray-800 bg-gray-900 text-gray-400 hover:text-white' 
+                : 'border-gray-200 bg-white text-gray-500 hover:text-gray-900 shadow-sm'
+            }`}
           >
-            <RefreshCw className="w-3.5 h-3.5" /> Analyze Another
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
-        )}
+          
+          {currentStep === 2 && (
+            <button 
+              onClick={handleReset}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
+                isDark 
+                  ? 'border-gray-800 bg-gray-900 text-gray-400 hover:text-white' 
+                  : 'border-gray-200 bg-white text-gray-650 hover:text-gray-950 shadow-sm'
+              }`}
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Analyze Another
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Content Area */}
@@ -236,33 +279,37 @@ export default function ProjectBuilder() {
           {currentStep === 0 && (
             <motion.div 
               key="step-input"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="flex-1 flex flex-col justify-center items-center p-6 max-w-lg mx-auto"
+              exit={{ opacity: 0, y: -12 }}
+              className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 max-w-2xl mx-auto w-full"
             >
-              <div className="space-y-6 text-center w-full">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/15 animate-bounce">
-                  <Cpu className="w-7 h-7 text-white" />
+              <div className={`p-8 sm:p-10 rounded-3xl border w-full space-y-6 text-center shadow-xl ${
+                isDark ? 'bg-gray-900/35 border-gray-800/80 shadow-black/10' : 'bg-white border-gray-200/80 shadow-gray-200/50'
+              }`}>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/20">
+                  <Cpu className="w-8 h-8 text-white animate-pulse" />
                 </div>
                 
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-bold">Repository Scanner</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-450 leading-relaxed">
-                    Provide the URL to a public GitHub repository. The Repository Intelligence Engine will extract its metadata, stack components, and project structure to draft your documentation.
+                <div className="space-y-2 max-w-md mx-auto">
+                  <h2 className="text-3xl font-extrabold tracking-tight">Repository Scanner</h2>
+                  <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Provide the URL to a public GitHub repository. Our Repository Intelligence Engine will parse folder structure and stack configuration to draft standard, production-ready documentation.
                   </p>
                 </div>
 
-                <form onSubmit={handleScan} className="space-y-4 text-left">
+                <form onSubmit={handleScan} className="space-y-4 text-left max-w-md mx-auto w-full">
                   <div className="space-y-1.5">
-                    <label htmlFor="repoUrl" className="text-xs font-semibold text-gray-500 dark:text-gray-450">GitHub Public Repository URL</label>
+                    <label htmlFor="repoUrl" className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      GitHub Public Repository URL
+                    </label>
                     <input 
                       id="repoUrl"
                       type="text" 
                       placeholder="e.g. https://github.com/owner/repository"
                       value={repoUrl}
                       onChange={(e) => setRepoUrl(e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl ${vc.input} text-sm transition-all`}
+                      className={`w-full px-4 py-3 rounded-xl ${vc.input} text-sm transition-all focus:scale-[1.01]`}
                     />
                   </div>
 

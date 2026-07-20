@@ -17,7 +17,7 @@ export default function StreakStep() {
       {formData.username && (
         <div className="mt-4">
           <p className={`text-xs mb-2 ${vc.textSec}`}>Preview:</p>
-          <img src={`https://streak-stats.demolab.com/?user=${formData.username}&theme=${formData.streakTheme}&date_format=${encodeURIComponent(formData.streakDateFormat)}`} alt="Streak Preview" className="max-w-full rounded-lg" />
+          <img src={`https://streak-stats.demolab.com/?user=${formData.username}&theme=${formData.streakTheme}&date_format=${encodeURIComponent(formData.streakDateFormat)}`} alt="" className="max-w-full rounded-lg" />
         </div>
       )}
     </div>

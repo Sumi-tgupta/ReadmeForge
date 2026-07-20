@@ -13,13 +13,24 @@ import { GenerationModel } from '../models/Generation.js';
 
 const router = Router();
 
-// Rate limit: 10/min for free users, 60/min for premium
+// Rate limit: 10/min for authenticated free users, 60/min for premium
 const generateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: (req) => req.user?.plan === 'premium' ? 60 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Generation rate limit reached. Please wait a moment.' },
+});
+
+// Strict IP-based rate limit for anonymous (guest) users: 3 generations per hour
+// Prevents uncapped AI token abuse from unauthenticated requests
+const guestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => !!req.user, // Skip for authenticated users
+  message: { error: 'Guest generation limit reached (3/hour). Sign in to continue building.' },
 });
 
 /**
@@ -30,23 +41,19 @@ const generateLimiter = rateLimit({
  * Request body: { formData: object, selectedSections: string[] }
  * Response: { markdown: string, usage: object, cached: boolean }
  */
-router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
+router.post('/', optionalAuth, guestLimiter, generateLimiter, async (req, res, next) => {
   const clientId = getClientId(req);
 
   // --- Credits Check ---
   if (req.user) {
-    console.log('[Generate] Credits check for user:', req.user.id);
     try {
       const user = await UserModel.getCreditsAndPlan(req.user.id);
-      console.log('[Generate] User plan details:', user);
       if (user && user.plan !== 'premium' && user.credits <= 0) {
         return res.status(403).json({ error: 'No credits remaining. Please upgrade your plan or wait for reset.' });
       }
     } catch (err) {
       console.error('[Generate] Credits check failed:', err.message);
     }
-  } else {
-    console.log('[Generate] No user session found (anonymous request)');
   }
 
   try {
@@ -70,7 +77,6 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
       const cacheHash = hashKey(formData, selectedSections);
       const cachedMarkdown = getCached(cacheHash);
       if (cachedMarkdown) {
-        console.log(`[Generate] Cache hit for hash ${cacheHash.slice(0, 12)}...`);
         
         // Deduct credit for cached profile generation
         if (req.user) {
@@ -97,7 +103,6 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
 
       // --- Optimize prompt ---
       const { prompt, systemPrompt, estimatedTokens } = buildOptimizedPrompt(formData, selectedSections);
-      console.log(`[Generate] Prompt built: ~${estimatedTokens} tokens`);
 
       // --- Model selection + generation with fallback ---
       const modelChain = getModelChain();
@@ -107,7 +112,6 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
 
       for (const modelConfig of modelChain) {
         try {
-          console.log(`[Generate] Trying model: ${modelConfig.model}`);
 
           result = await withRetry(() =>
             callGemini({
@@ -125,7 +129,9 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
         } catch (err) {
           lastError = err;
           recordFailure(modelConfig.model);
-          console.log(`[Generate] Model ${modelConfig.model} failed: ${err.message}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`[Generate] Model ${modelConfig.model} failed: ${err.message}`);
+          }
 
           // Don't try fallback models for auth errors — they'll all fail
           if (err instanceof GeminiAuthError) {
@@ -155,10 +161,8 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
 
       // --- Deduct credit ---
       if (req.user) {
-        console.log('[Generate] Attempting to deduct credit for user:', req.user.id);
         try {
-          const resDeduct = await UserModel.deductCredit(req.user.id);
-          console.log('[Generate] Credit deduction result:', resDeduct);
+          await UserModel.deductCredit(req.user.id);
         } catch (deductErr) {
           console.error('[Generate] Credit deduction failed:', deductErr.message);
         }
@@ -166,7 +170,7 @@ router.post('/', optionalAuth, generateLimiter, async (req, res, next) => {
 
       // --- Track usage (best-effort, don't fail the request) ---
       try {
-        trackUsage(req.user?.id, usedModel, result.usage, cacheHash);
+        await trackUsage(req.user?.id, usedModel, result.usage, cacheHash);
       } catch (trackErr) {
         console.error('[Generate] Usage tracking failed:', trackErr.message);
       }
@@ -207,8 +211,8 @@ router.get('/health', (req, res) => {
 async function trackUsage(userId, model, usage, promptHash) {
   try {
     await GenerationModel.trackUsage(userId, model, usage, promptHash, 'profile');
-  } catch {
-    // Silently fail — usage tracking is best-effort
+  } catch (err) {
+    console.warn('[Generate] trackUsage silent failure:', err.message);
   }
 }
 

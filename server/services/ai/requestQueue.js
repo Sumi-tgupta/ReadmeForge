@@ -30,21 +30,15 @@ export function isGenerating(clientId) {
  */
 export function acquireSlot(clientId) {
   if (activeGenerations.has(clientId)) {
-    return false;
+    if (Date.now() - activeGenerations.get(clientId).startedAt > 120_000) {
+      activeGenerations.delete(clientId);
+    } else {
+      return false;
+    }
   }
 
   if (activeGenerations.size >= MAX_QUEUE_SIZE) {
-    // Clean up stale entries (older than 2 minutes — safety net)
-    const now = Date.now();
-    for (const [id, entry] of activeGenerations) {
-      if (now - entry.startedAt > 120_000) {
-        activeGenerations.delete(id);
-      }
-    }
-
-    if (activeGenerations.size >= MAX_QUEUE_SIZE) {
-      return false;
-    }
+    return false;
   }
 
   activeGenerations.set(clientId, { startedAt: Date.now() });
@@ -68,3 +62,13 @@ export function getQueueStats() {
     maxSize: MAX_QUEUE_SIZE,
   };
 }
+
+// Clean up stale entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, entry] of activeGenerations) {
+    if (now - entry.startedAt > 120_000) {
+      activeGenerations.delete(id);
+    }
+  }
+}, 60_000).unref();

@@ -127,30 +127,16 @@ export const UserModel = {
   deductCredit: async (userId) => {
     const supabase = getDb();
     
-    // First retrieve current credits
-    const user = await UserModel.getCreditsAndPlan(userId);
-    if (!user) return null;
+    // Attempt atomic RPC deduction (production-ready, avoids TOCTOU race conditions)
+    const { data: rpcData, error: rpcError } = await supabase
+      .rpc('deduct_user_credit', { user_uuid: userId });
 
-    if (user.plan === 'premium') {
-      return { credits: -1, plan: 'premium' };
+    if (rpcError) {
+      console.error('[UserModel] deduct_user_credit RPC error:', rpcError.message);
+      throw new Error(`Failed to deduct credit: ${rpcError.message}`);
     }
 
-    const newCredits = Math.max(0, (user.credits || 0) - 1);
-    const { data, error } = await supabase
-      .from('users')
-      .update({
-        credits: newCredits,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', userId)
-      .select('credits')
-      .single();
-
-    if (error) {
-      console.error('[UserModel] deductCredit error:', error.message);
-      return null;
-    }
-    return data;
+    return { credits: rpcData };
   }
 };
 

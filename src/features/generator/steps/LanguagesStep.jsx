@@ -22,7 +22,7 @@ export default function LanguagesStep() {
       {formData.username && (
         <div className="mt-4">
           <p className={`text-xs mb-2 ${vc.textSec}`}>Preview:</p>
-          <img src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${formData.username}&theme=${formData.langTheme}&layout=${formData.langLayout}`} alt="Languages Preview" className="max-w-full rounded-lg" />
+          <img src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${formData.username}&theme=${formData.langTheme}&layout=${formData.langLayout}`} alt="" className="max-w-full rounded-lg" />
         </div>
       )}
     </div>

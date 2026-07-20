@@ -6,9 +6,9 @@ import { authApi } from '../../../services/authApi';
 import { 
   BarChart3, Activity, Clock, CreditCard, ChevronRight, 
   Sparkles, Plus, Star, Copy, ExternalLink, Settings, 
-  User, LayoutDashboard, Database, RefreshCw, FolderGit2, Terminal
+  User, LayoutDashboard, Database, RefreshCw, FolderGit2, Terminal, Menu, X
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../../../hooks/useSEO';
 
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [credits, setCredits] = useState(null);
   const [recentProjects, setRecentProjects] = useState([]);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -81,28 +82,38 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0D1117] flex flex-col justify-center items-center gap-4 font-sans select-none">
-        <RefreshCw className="w-8 h-8 text-[#5B8CFF] animate-spin" />
-        <span className="text-xs text-[#9CA3AF]">Loading dashboard analytics...</span>
+      <div className={`min-h-screen ${vc.bg} flex flex-col justify-center items-center gap-4 font-sans select-none`}>
+        <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+        <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading dashboard analytics...</span>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen flex ${vc.bg} ${vc.text} transition-colors duration-300 font-sans text-left`}>
+    <div className={`min-h-screen flex ${isDark ? 'bg-gray-955' : 'bg-[#E2DFD2]'} ${vc.text} transition-colors duration-300 font-sans text-left`}>
       
-      {/* SIDEBAR */}
-      <aside className={`w-64 border-r shrink-0 hidden md:flex flex-col h-screen ${
-        isDark ? 'border-gray-800 bg-gray-905' : 'border-gray-200 bg-gray-50/50'
+      {/* MOBILE SIDEBAR OVERLAY */}
+      {mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* SIDEBAR — hidden on mobile, slide in on toggle */}
+      <aside className={`fixed md:relative z-50 md:z-auto inset-y-0 left-0 w-64 border-r shrink-0 flex flex-col h-screen transition-transform duration-300 ease-in-out ${
+        mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      } ${
+        isDark ? 'border-gray-800 bg-gray-905' : 'border-gray-200 bg-white/75'
       }`}>
-        <div className="p-6 flex items-center gap-2.5 border-b border-gray-250 dark:border-gray-800">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg select-none">
+        <Link to="/" className="p-6 flex items-center gap-2.5 border-b border-gray-250 dark:border-gray-800 group cursor-pointer">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform select-none">
             <Terminal className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-sm bg-gradient-to-r from-gray-950 dark:from-white to-gray-500 dark:to-gray-400 bg-clip-text text-transparent">
             README<span className="text-indigo-600 dark:text-indigo-400 ml-0.5">Forge</span>
           </span>
-        </div>
+        </Link>
 
         <nav className="flex-1 p-4 space-y-1">
           <button
@@ -143,9 +154,19 @@ export default function Dashboard() {
         <header className={`border-b shrink-0 px-6 py-4 flex items-center justify-between sticky top-0 z-35 ${
           isDark ? 'border-gray-800 bg-gray-950/80' : 'border-gray-200 bg-white/80'
         } backdrop-blur-md`}>
-          <div className="text-left">
-            <h1 className="text-base font-bold">User Dashboard</h1>
-            <p className="text-[10px] text-gray-500">Monitor usage statistics and manage saved projects</p>
+          <div className="flex items-center gap-3">
+            {/* Hamburger — mobile only */}
+            <button
+              className="md:hidden p-2 rounded-lg border transition-colors border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Open navigation"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+            <div className="text-left">
+              <h1 className="text-base font-bold">User Dashboard</h1>
+              <p className="text-[10px] text-gray-500">Monitor usage statistics and manage saved projects</p>
+            </div>
           </div>
 
           <button
@@ -168,7 +189,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
               <img src={user.avatarUrl} alt={user.username} className="w-14 h-14 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm" />
               <div>
-                <h2 className="text-lg font-extrabold text-white">Welcome back, {user.displayName || user.username}!</h2>
+                <h2 className={`text-lg font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>Welcome back, {user.displayName || user.username}!</h2>
                 <p className={`text-xs ${vc.textSec}`}>Manage your profiles, crawl project repositories, and synchronize setups.</p>
               </div>
             </div>
@@ -240,7 +261,7 @@ export default function Dashboard() {
                 >
                   <div>
                     <div className="flex justify-between items-start gap-3 mb-2.5">
-                      <h4 className="font-bold text-sm truncate pr-4 text-white/95">{proj.title}</h4>
+                      <h4 className={`font-bold text-sm truncate pr-4 ${isDark ? 'text-white/95' : 'text-gray-900'}`}>{proj.title}</h4>
                       {proj.is_favorite === 1 && <Star className="w-4.5 h-4.5 text-amber-400 fill-amber-400 shrink-0" />}
                     </div>
                     <div className="flex flex-wrap gap-1 mb-3">
@@ -260,13 +281,21 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-3">
                     <button
                       onClick={() => {
-                        // Open project by restoring data
-                        // Set active generator configurations and redirect
-                        window.sessionStorage.setItem('readme_forge_chat_profile', JSON.stringify({
-                          formData: JSON.parse(proj.input_data || '{}'),
-                          currentQuestionId: 'review'
-                        }));
-                        navigate(proj.builder_type === 'project' ? '/project-builder' : '/profile-builder');
+                        if (proj.builder_type === 'project') {
+                          // For project builder, save to project restore state
+                          window.sessionStorage.setItem('readme_forge_project_restore', JSON.stringify({
+                            repoUrl: JSON.parse(proj.input_data || '{}').repoUrl || proj.title || '',
+                            generatedMarkdown: proj.output_data || ''
+                          }));
+                          navigate('/project-builder');
+                        } else {
+                          // For profile builder
+                          window.sessionStorage.setItem('readme_forge_chat_profile', JSON.stringify({
+                            formData: JSON.parse(proj.input_data || '{}'),
+                            currentQuestionId: 'review'
+                          }));
+                          navigate('/profile-builder');
+                        }
                       }}
                       className="text-xs font-semibold text-indigo-500 hover:opacity-80 transition-opacity flex items-center gap-1"
                     >

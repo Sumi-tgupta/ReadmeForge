@@ -3,7 +3,7 @@ import { User, Terminal, ArrowRight, Sparkles, RefreshCw } from 'lucide-react';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { useNavigate } from 'react-router-dom';
 
-export default function SuggestionCards({ onSelectAction }) {
+export default React.memo(function SuggestionCards({ onSelectAction }) {
   const { vc, isDark } = useTheme();
   const navigate = useNavigate();
 
@@ -67,4 +67,5 @@ export default function SuggestionCards({ onSelectAction }) {
       })}
     </div>
   );
-}
+});
+

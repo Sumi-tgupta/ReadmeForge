@@ -1,6 +1,7 @@
 /**
  * Dependency Parser for various language packages and lockfiles
  */
+import toml from '@iarna/toml';
 
 /**
  * Parses package.json contents
@@ -55,28 +56,21 @@ export function parseRequirementsTxt(content) {
  */
 export function parsePyprojectToml(content) {
   if (!content) return [];
-  const packages = [];
-  
-  // Basic parsing for TOML blocks
-  const depBlockMatch = content.match(/\[tool\.poetry\.(?:dev-)?dependencies\]([\s\S]*?)(?=\n\[|$)/g);
-  if (depBlockMatch) {
-    for (const block of depBlockMatch) {
-      const lines = block.split('\n');
-      for (let line of lines) {
-        line = line.trim();
-        if (!line || line.startsWith('[') || line.startsWith('#')) continue;
-        const eqIndex = line.indexOf('=');
-        if (eqIndex !== -1) {
-          const pkgName = line.substring(0, eqIndex).trim().replace(/"/g, '').replace(/'/g, '');
-          if (pkgName !== 'python') {
-            packages.push(pkgName.toLowerCase());
-          }
-        }
-      }
-    }
+  try {
+    const data = toml.parse(content);
+    const deps = data.tool?.poetry?.dependencies || {};
+    const devDeps = data.tool?.poetry?.['dev-dependencies'] || data.tool?.poetry?.group?.dev?.dependencies || {};
+    
+    const packages = [
+      ...Object.keys(deps),
+      ...Object.keys(devDeps)
+    ].map(pkg => pkg.toLowerCase()).filter(pkg => pkg !== 'python');
+    
+    return packages;
+  } catch (err) {
+    console.error('[DependencyParser] pyproject.toml parse error:', err.message);
+    return [];
   }
-  
-  return packages;
 }
 
 /**
@@ -122,26 +116,19 @@ export function parseGoMod(content) {
  */
 export function parseCargoToml(content) {
   if (!content) return [];
-  const packages = [];
-  
-  // Match dependencies blocks
-  const depBlockMatch = content.match(/\[(?:dev-)?dependencies\]([\s\S]*?)(?=\n\[|$)/g);
-  if (depBlockMatch) {
-    for (const block of depBlockMatch) {
-      const lines = block.split('\n');
-      for (let line of lines) {
-        line = line.trim();
-        if (!line || line.startsWith('[') || line.startsWith('#')) continue;
-        const eqIndex = line.indexOf('=');
-        if (eqIndex !== -1) {
-          const crateName = line.substring(0, eqIndex).trim().replace(/"/g, '').replace(/'/g, '');
-          packages.push(crateName);
-        }
-      }
-    }
+  try {
+    const data = toml.parse(content);
+    const deps = data.dependencies || {};
+    const devDeps = data['dev-dependencies'] || {};
+    
+    return [
+      ...Object.keys(deps),
+      ...Object.keys(devDeps)
+    ];
+  } catch (err) {
+    console.error('[DependencyParser] Cargo.toml parse error:', err.message);
+    return [];
   }
-
-  return packages;
 }
 
 /**
