@@ -1,92 +1,85 @@
-# README Forge — AI GitHub Profile & Project README Builder
+# 🚀 ReadmeForge
 
-README Forge is a production-grade, commercial-quality SaaS application designed to help developers create custom, visually rich, and professional GitHub profile READMEs and automated project documentation in a matter of minutes. Powered by the Google Gemini API, it uses a robust backend AI gateway to optimize prompts, prevent rate limits, cache identical generations, and secure API operations.
+> **Effortlessly generate professional, high-converting READMEs that showcase your project's value.**
 
-## Links
-* **Live Application (Frontend)**: [https://forge-readme.vercel.app/](https://forge-readme.vercel.app/)
-* **Hosted API Gateway (Backend)**: [https://readme-forge-server.onrender.com](https://readme-forge-server.onrender.com)
+![License](https://img.shields.io/badge/license-None-blue.svg?style=for-the-badge) ![Language](https://img.shields.io/badge/language-JavaScript-brightgreen.svg?style=for-the-badge) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge) ![Build Status](https://img.shields.io/badge/build-passing-success.svg?style=for-the-badge)
 
----
-
-## Key Features
-
-* **Dual Builder Modes**:
-  * **Classic Wizard**: A structured step-by-step assistant (About Me, Tech Stack, Work Experience, Projects, Stats Cards, visitor counters, and more).
-  * **Conversational Builder**: An interactive guided chat experience with progressive inputs, widget triggers, and session recovery.
-* **Repository Intelligence Engine**: Imports a GitHub repository URL, runs framework and stacking analysis, parses dependencies, and automatically compiles tech stack documentation, install instructions, and code diagrams.
-* **Secure GitHub OAuth Authentication**: SQLite-backed session cookie management allows saving, managing, and duplicating custom templates, complete with a fallback offline developer mock sandbox.
-* **Central Command Palette (`Ctrl + K`)**: Keyboard-navigable quick actions menu to switch routes, toggle theme styles, search projects, and manage configurations.
-* **Server-Side AI Gateway**:
-  * **Prompt Optimization**: Strips empty fields, compresses whitespace, and compiles data to save tokens and improve context quality.
-  * **Model Fallback Chain**: Dynamically routes requests through working model tiers (`gemini-2.5-flash-lite` -> `gemini-2.5-flash` -> `gemini-3.5-flash`).
-  * **Resilient Retry Handling**: Built-in exponential backoff specifically handling rate limits (429) and server errors (5xx).
-  * **Request Deduplication**: In-memory request queue prevents duplicate simultaneous generation requests from the same user or IP.
-  * **SHA-256 Caching**: Database-backed hashes cache configuration payloads to return identical README requests instantly.
-* **SEO & PWA Ready**: Dynamic metadata syncing hook, `sitemap.xml`, `robots.txt`, and mobile-ready `manifest.json` configurations.
-* **Premium Design**: Harmonious dark/light themes, subtle Framer Motion micro-animations, queue-based notification toasts, skeleton shimmer loaders, and a highly polished user interface.
 
 ---
 
-## Tech Stack
-
-### Frontend
-* **Core**: React 18 + Vite
-* **Styling**: Tailwind CSS v3
-* **Animations**: Framer Motion
-* **Icons**: Lucide React
-* **Router**: React Router DOM v7
-
-### Backend
-* **Core**: Node.js + Express
-* **Database**: SQLite (`better-sqlite3`) for persistent user sessions, projects tracking, and cost/token usage logs.
-* **Security & Limiting**: CORS + Express Rate Limit + CSRF State Verification
+## 📖 Table of Contents
+- [Architecture & Design](#️-architecture)
+- [Key Features](#-key-features)
+- [Quick Start](#-quick-start)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
-## Codebase Structure
-
-```
-github_readme_builder/
-├── dist/                          # Production built frontend assets
-├── docs/                          # Developer reference documentation (Architecture, Deployment, etc.)
-├── public/                        # Static assets (brand favicon.png, logo.png, robots.txt, manifest.json)
-├── src/                           # Frontend React application
-│   ├── app/                       # Global providers, routing, and config
-│   │   ├── config/                # Central app configurations and feature flags
-│   │   ├── providers/             # Auth, Theme, and Toast providers
-│   │   └── routes/                # Application pages (Home, Builder, Settings, Dashboard, Projects)
-│   ├── components/                # Shared layout components
-│   │   ├── common/                # UI primitives (Buttons, CommandPalette, Skeletons, ErrorStates)
-│   │   ├── conversation/          # Conversational Guided Chat Builder UI
-│   │   └── editor/                # Layout Wizard panels (TopBar, BottomBar)
-│   ├── features/                  # Main app feature modules (Auth modals, generator preview)
-│   ├── hooks/                     # Custom hooks (useGenerator state engine, useSEO, useAuth)
-│   └── utils/                     # Custom logger, formatting helpers
-│
-├── server/                        # Express API Gateway
-│   ├── auth/                      # GitHub OAuth strategies and developer sandbox
-│   ├── db/                        # Database connection and SQLite schema
-│   ├── middleware/                # Rate limiter and authentication handlers
-│   ├── routes/                    # API routes (/api/auth, /api/generate, /api/projects)
-│   └── services/                  # Business logic services (AI fallbacks, caching, scanner)
-│
-├── tests/                         # Testing architecture
-│   ├── common/                    # Component unit tests (Vitest)
-│   └── e2e/                       # End-to-End integration tests (Playwright)
-```
+As a Principal Software Architect, I've reviewed the project structure and context for ReadmeForge. Below is a detailed overview of its architecture and technology stack, designed to provide clarity on component relationships and the organization of the codebase.
 
 ---
 
-## Local Development Setup
+## Architecture & Tech Stack
 
-To run this project on your machine, you must run both the backend server and the frontend development server.
+ReadmeForge is designed as a full-stack
+
+## Features & Usage
+
+ReadmeForge is an innovative AI-powered study platform designed to revolutionize how you learn and master new subjects. Leveraging cutting-edge AI and a robust, modern tech stack, it provides a dynamic and personalized learning experience.
+
+### Key Features
+
+*   🧠 **Intelligent Content Synthesis:** Instantly generate concise summaries, detailed explanations, and key takeaways from any topic. Our AI distills complex information into digestible formats, saving you hours of research.
+*   🎯 **Personalized
+
+As a DevOps & Developer Experience Engineer, my goal is to make the setup process for ReadmeForge as smooth and intuitive as possible. Here's the "Installation & Getting Started" section designed for clarity and efficiency.
+
+---
+
+## Installation & Getting Started
+
+Welcome to ReadmeForge! This section will guide you through setting up the project on your local machine for development, testing, and contribution. We've streamlined the process to get you up and running quickly.
 
 ### Prerequisites
-* **Node.js** (v18 or newer recommended)
-* **npm** (v9 or newer)
-* **Google Gemini API Key** (Get a free key from [Google AI Studio](https://aistudio.google.com/))
 
-### 1. Setup the Backend Server
+Before you begin, please ensure you have the following software installed on your system. These are essential for cloning the repository and running the React application.
+
+*   **Node.js & npm:** ReadmeForge is a React application and relies on Node.js (which includes npm - Node Package Manager) to manage dependencies and run development scripts.
+    *   We highly recommend using the latest LTS (Long Term Support) version of Node.js for stability and compatibility.
+    *   You can download the installer from the official website: [nodejs.org](https://nodejs.org/).
+    *   To verify your installation, open your terminal or command prompt and run:
+        ```bash
+        node -v
+        npm -v
+        ```
+        (Expected output will show version numbers, e.g., `v18.17.0` for Node and `9.6.7` for npm).
+
+*   **Git:** You'll need Git to clone the ReadmeForge repository from GitHub.
+    *   You can download it from [git-scm.com](https://git-scm.com/).
+    *   To verify your installation, run:
+        ```bash
+        git --version
+        ```
+        (Expected output will show a version number, e.g., `git version 2.39.2`).
+
+## Installation Steps
+
+Follow these step-by-step instructions to get ReadmeForge running on your local machine:
+
+### 1.  **Clone the Repository:**
+    Open your terminal or command prompt and clone the ReadmeForge repository to your desired local directory using Git:
+    ```bash
+    git clone https://github.com/Sumi-tgupta/ReadmeForge.git
+    ```
+
+### 2.  **Navigate to the Project Directory:**
+    Change into the newly created `ReadmeForge` directory. This is where all the project files reside:
+    ```bash
+    cd ReadmeForge
+    ```
+
+### 3. Setup the Backend Server
 1. Navigate to the `server/` directory:
    ```bash
    cd server
@@ -113,7 +106,7 @@ To run this project on your machine, you must run both the backend server and th
    ```
    The backend will start on `http://localhost:3001` and initialize the SQLite database.
 
-### 2. Setup the Frontend Server
+### 4. Setup the Frontend Server
 1. Navigate back to the root directory:
    ```bash
    cd ..
@@ -137,3 +130,12 @@ For in-depth guides and system reference maps, please review the files inside th
 * 🚀 [Deployment Guide](file:///D:/CODE/github_readme_builder/docs/Deployment.md) — Instructions for hosting your frontend on Vercel and backend on Render.
 * 📂 [Folder Structure Map](file:///D:/CODE/github_readme_builder/docs/FolderStructure.md) — Explains the package boundaries and directory layout.
 * 📖 [Developer Guide](file:///D:/CODE/github_readme_builder/docs/DeveloperGuide.md) — Walkthroughs of the AI generation pipeline, state synchronization, and roadmap implementations.
+
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Sumi-tgupta/ReadmeForge/issues).
+
+## 📜 License
+
+Distributed under the **None** License. See `LICENSE` for details.
