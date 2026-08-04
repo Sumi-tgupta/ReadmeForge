@@ -25,4 +25,5 @@ export default React.memo(function ToggleSwitch({ label, value, onChange }) {
       </button>
     </div>
   );
-}
+});
+

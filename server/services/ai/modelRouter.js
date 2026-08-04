@@ -3,6 +3,9 @@
  * Primary model is cheapest/fastest; fallback is higher quality.
  */
 
+import { callGemini } from './geminiProvider.js';
+import { withRetry } from './retryHandler.js';
+
 const MODEL_CHAIN = [
   {
     id: 'primary',
@@ -40,14 +43,11 @@ function isHealthy(model) {
   const health = getHealth(model);
   const now = Date.now();
 
-  // If in cooldown, check if cooldown has expired
   if (health.cooldownUntil > now) {
     return false;
   }
 
-  // Clean old failures outside the window
   health.failures = health.failures.filter(t => now - t < FAILURE_WINDOW_MS);
-
   return health.failures.length < MAX_FAILURES;
 }
 
@@ -58,11 +58,9 @@ export function recordFailure(model) {
   const health = getHealth(model);
   health.failures.push(Date.now());
 
-  // Clean old failures
   const now = Date.now();
   health.failures = health.failures.filter(t => now - t < FAILURE_WINDOW_MS);
 
-  // If too many failures, enter cooldown
   if (health.failures.length >= MAX_FAILURES) {
     health.cooldownUntil = now + COOLDOWN_MS;
     console.log(`[ModelRouter] Model ${model} entered cooldown for ${COOLDOWN_MS / 1000}s`);
@@ -80,17 +78,12 @@ export function recordSuccess(model) {
 
 /**
  * Get the ordered list of models to try.
- * Unhealthy models are pushed to the end but not removed entirely.
- * @returns {Array<{ model: string, maxOutputTokens: number, temperature: number, label: string }>}
  */
 export function getModelChain() {
   const healthy = MODEL_CHAIN.filter(m => isHealthy(m.model));
   const unhealthy = MODEL_CHAIN.filter(m => !isHealthy(m.model));
 
-  // Healthy models first, unhealthy as last resort
   const chain = [...healthy, ...unhealthy];
-
-  // Always return at least one model
   return chain.length > 0 ? chain : MODEL_CHAIN;
 }
 
@@ -112,4 +105,32 @@ export function getModelHealth() {
     failures: getHealth(m.model).failures.length,
     cooldownUntil: getHealth(m.model).cooldownUntil,
   }));
+}
+
+/**
+ * Executes a prompt with full fallback chain across healthy Gemini models.
+ */
+export async function executeWithFallback({ prompt, systemPrompt, systemInstruction, temperature = 0.7 }) {
+  const chain = getModelChain();
+  let lastError = null;
+
+  for (const config of chain) {
+    try {
+      const res = await withRetry(() => callGemini({
+        model: config.model,
+        prompt,
+        systemPrompt: systemPrompt || systemInstruction,
+        temperature: temperature || config.temperature,
+        maxOutputTokens: config.maxOutputTokens || 2000
+      }));
+
+      recordSuccess(config.model);
+      return res.text;
+    } catch (err) {
+      lastError = err;
+      recordFailure(config.model);
+    }
+  }
+
+  throw lastError || new Error('All AI models in fallback chain failed.');
 }

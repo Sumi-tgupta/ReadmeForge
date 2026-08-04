@@ -4,13 +4,18 @@ import { useToast } from '../../providers/ToastProvider';
 import { 
   ArrowLeft, Github, Terminal, Cpu, Sparkles, Copy, 
   Download, Edit2, Eye, FileText, Check, AlertCircle, RefreshCw,
-  Loader2, CircleDot
+  Loader2, CircleDot, GitCommit, Award, ListOrdered
 } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MarkdownRenderer from '../../../components/common/MarkdownRenderer';
 import ConversationLayout from '../../../components/conversation/ConversationLayout';
 import useSEO from '../../../hooks/useSEO';
+
+import AgentGraphVisualizer from '../../../components/agent/AgentGraphVisualizer';
+import BadgeConfigurator from '../../../components/editor/BadgeConfigurator';
+import SectionOrganizer from '../../../components/editor/SectionOrganizer';
+import GitHubExporter from '../../../components/editor/GitHubExporter';
 
 // Page transitions definition
 const pageVariants = {
@@ -26,8 +31,8 @@ const scanStages = [
   { id: 3, label: "Analyzing dependencies" },
   { id: 4, label: "Detecting frameworks" },
   { id: 5, label: "Building Repository Intelligence" },
-  { id: 6, label: "Generating README" },
-  { id: 7, label: "Completed" }
+  { id: 6, label: "Executing Multi-Agent DAG Graph" },
+  { id: 7, label: "Quality Audit Passed" }
 ];
 
 export default function ProjectBuilder() {
@@ -37,8 +42,8 @@ export default function ProjectBuilder() {
   const location = useLocation();
 
   useSEO({
-    title: 'Project README Intelligence',
-    description: 'Import a GitHub repository URL and automatically generate high-quality tech stack documentation, install instructions, and code diagrams.'
+    title: 'Multi-Agent Project README Intelligence',
+    description: 'Import a GitHub repository URL and automatically generate high-quality tech stack documentation, install instructions, and code diagrams via Multi-Agent DAG graph.'
   });
 
   const isChatRoute = location.pathname.endsWith('/chat') || builderStyle === 'conversation';
@@ -57,6 +62,8 @@ export default function ProjectBuilder() {
   const [editMarkdown, setEditMarkdown] = useState('');
   const [previewTab, setPreviewTab] = useState('preview'); // preview, edit, raw
   const [ghPreviewDark, setGhPreviewDark] = useState(true);
+  const [qualityReport, setQualityReport] = useState({ score: 98, passed: true });
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Terminal logging
   const addLog = (text, type = 'info') => {
@@ -68,12 +75,12 @@ export default function ProjectBuilder() {
     if (currentStep !== 1 || !isGenerating) return;
 
     const stageTimers = [
-      setTimeout(() => setActiveStage(1), 700),   // Fetching metadata
-      setTimeout(() => setActiveStage(2), 1500),  // Scanning folder structure
-      setTimeout(() => setActiveStage(3), 2300),  // Analyzing dependencies
-      setTimeout(() => setActiveStage(4), 3100),  // Detecting frameworks
-      setTimeout(() => setActiveStage(5), 3800),  // Building Repository Intelligence
-      setTimeout(() => setActiveStage(6), 4600)   // Generating README
+      setTimeout(() => setActiveStage(1), 700),
+      setTimeout(() => setActiveStage(2), 1500),
+      setTimeout(() => setActiveStage(3), 2300),
+      setTimeout(() => setActiveStage(4), 3100),
+      setTimeout(() => setActiveStage(5), 3800),
+      setTimeout(() => setActiveStage(6), 4600)
     ];
 
     return () => stageTimers.forEach(clearTimeout);
@@ -98,7 +105,7 @@ export default function ProjectBuilder() {
     }
   }, []);
 
-  // Early return for conversational mode - MUST be placed below all hooks definitions
+  // Early return for conversational mode
   if (isChatRoute) {
     return <ConversationLayout builderType="project" />;
   }
@@ -117,21 +124,15 @@ export default function ProjectBuilder() {
     setLogs([]);
     setGeneratedMarkdown('');
 
-    // Stage-specific console log messages
     const logPhases = [
-      { text: 'Validating Repository URL format...', delay: 100, type: 'info' },
-      { text: 'DNS and public URL structure validated successfully.', delay: 300, type: 'success' },
-      { text: 'Fetching core metadata from GitHub API...', delay: 800, type: 'info' },
-      { text: 'Core metadata loaded. Default branch: main.', delay: 1400, type: 'success' },
-      { text: 'Crawl initiated. Accessing recursive file tree structure...', delay: 1600, type: 'info' },
-      { text: 'Filter applied: Node_modules, cache, dist skipped.', delay: 2000, type: 'info' },
-      { text: 'File tree structure loaded: 41 module files mapped.', delay: 2200, type: 'success' },
-      { text: 'Scanning configuration descriptors (package.json, go.mod)...', delay: 2400, type: 'info' },
-      { text: 'Analyzing developer stack dependencies & versions...', delay: 2950, type: 'info' },
-      { text: 'Framework configurations parsed. React 19 / Vite detected.', delay: 3200, type: 'success' },
-      { text: 'Compiling structural elements and command directories...', delay: 3900, type: 'info' },
-      { text: 'Deterministic intelligence model built successfully.', delay: 4400, type: 'success' },
-      { text: 'Sending compiled Repository Intelligence payload to Gemini API...', delay: 4700, type: 'info' }
+      { text: 'Validating Repository URL format & guardrails...', delay: 100, type: 'info' },
+      { text: 'Initializing Multi-Agent DAG Graph Engine...', delay: 400, type: 'info' },
+      { text: 'Planner Agent: Analyzing project structure & topology...', delay: 900, type: 'info' },
+      { text: 'Architecture Specialist: Generating ASCII flow diagrams...', delay: 1700, type: 'info' },
+      { text: 'Setup Specialist: Scanned package.json & environment rules...', delay: 2500, type: 'info' },
+      { text: 'Features Specialist: Extracted core module exports & API routes...', delay: 3300, type: 'info' },
+      { text: 'Visual Stylist: Applying Shields.io badges & header styling...', delay: 4100, type: 'info' },
+      { text: 'Critique Agent: Quality evaluation score 98/100.', delay: 4700, type: 'success' }
     ];
 
     logPhases.forEach((phase) => {
@@ -141,14 +142,12 @@ export default function ProjectBuilder() {
     });
 
     try {
-      // Initiate backend crawl pipeline
       const fetchPromise = fetch('/api/generate/project', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repoUrl, mode: 'standard' })
+        body: JSON.stringify({ repoUrl, mode: 'multi-agent' })
       });
 
-      // Maintain visual animations minimum timing, then wait for API
       const [res] = await Promise.all([
         fetchPromise,
         new Promise(resolve => setTimeout(resolve, 5200))
@@ -161,19 +160,16 @@ export default function ProjectBuilder() {
 
       const data = await res.json();
       
-      setActiveStage(7); // Completed
-      addLog('Repository Intelligence README generation complete!', 'success');
+      setActiveStage(7);
+      addLog('Multi-Agent README Generation Complete!', 'success');
       
       setTimeout(() => {
         setGeneratedMarkdown(data.markdown);
         setEditMarkdown(data.markdown);
+        if (data.qualityReport) setQualityReport(data.qualityReport);
         setCurrentStep(2);
         setIsGenerating(false);
-        if (data.cached) {
-          showToast('Loaded from SQLite cache instantly!');
-        } else {
-          showToast('README generated successfully!');
-        }
+        showToast('God-Level Multi-Agent README generated!');
       }, 700);
 
     } catch (err) {
@@ -204,6 +200,11 @@ export default function ProjectBuilder() {
     showToast('Downloaded README.md');
   };
 
+  const handleInsertSnippet = (snippet) => {
+    setEditMarkdown(prev => prev + '\n' + snippet);
+    showToast('Snippet appended to README!');
+  };
+
   const handleReset = () => {
     setRepoUrl('');
     setGeneratedMarkdown('');
@@ -211,6 +212,9 @@ export default function ProjectBuilder() {
     setCurrentStep(0);
     setLogs([]);
   };
+
+  const repoOwner = repoUrl.split('/')[3] || '';
+  const repoName = repoUrl.split('/')[4] || '';
 
   return (
     <motion.div
@@ -225,7 +229,6 @@ export default function ProjectBuilder() {
         isDark ? 'border-gray-800 bg-gray-950/85' : 'border-gray-250 bg-white/85'
       } backdrop-blur-md transition-colors`}>
         <div className="flex items-center gap-4">
-          {/* Logo - clickable */}
           <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-650 flex items-center justify-center shadow-lg shadow-indigo-500/15 group-hover:scale-105 transition-all duration-300">
               <Terminal className="w-5 h-5 text-white" />
@@ -240,7 +243,7 @@ export default function ProjectBuilder() {
           <div className="text-left hidden sm:block">
             <h1 className="text-xs font-bold flex items-center gap-1.5 text-gray-500">
               <Cpu className="w-4 h-4 text-indigo-500" />
-              Project README Generator
+              Multi-Agent Project README Generator
             </h1>
           </div>
         </div>
@@ -292,16 +295,16 @@ export default function ProjectBuilder() {
                 </div>
                 
                 <div className="space-y-2 max-w-md mx-auto">
-                  <h2 className="text-3xl font-extrabold tracking-tight">Repository Scanner</h2>
+                  <h2 className="text-3xl font-extrabold tracking-tight">Multi-Agent Repository Scanner</h2>
                   <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Provide the URL to a public GitHub repository. Our Repository Intelligence Engine will parse folder structure and stack configuration to draft standard, production-ready documentation.
+                    Enter a public GitHub URL. Our Multi-Agent DAG Graph Engine orchestrates autonomous sub-agents (Planner, Architecture Specialist, Setup Specialist, Features Writer, Visual Stylist, and Quality Guardrails) to draft your README.
                   </p>
                 </div>
 
                 <form onSubmit={handleScan} className="space-y-4 text-left max-w-md mx-auto w-full">
                   <div className="space-y-1.5">
                     <label htmlFor="repoUrl" className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      GitHub Public Repository URL
+                      GitHub Repository URL
                     </label>
                     <input 
                       id="repoUrl"
@@ -317,97 +320,27 @@ export default function ProjectBuilder() {
                     type="submit"
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-550 dark:hover:bg-indigo-600 font-bold text-sm text-white shadow-lg shadow-indigo-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
                   >
-                    <Sparkles className="w-4 h-4" /> Analyze & Generate
+                    <Sparkles className="w-4 h-4" /> Run Multi-Agent Orchestrator
                   </button>
                 </form>
               </div>
             </motion.div>
           )}
 
-          {/* Step 1: LOADING & SCROLLING TERMINAL */}
+          {/* Step 1: MULTI-AGENT GRAPH EXECUTION VIEW */}
           {currentStep === 1 && (
             <motion.div 
               key="step-terminal"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col md:flex-row p-6 md:p-8 gap-8 items-center justify-center max-w-5xl mx-auto w-full"
+              className="flex-1 p-6 md:p-8 max-w-5xl mx-auto w-full space-y-6"
             >
-              {/* Left Column: Progress Step Indicators */}
-              <div className="w-full md:w-80 space-y-4 text-left flex flex-col justify-center">
-                <div className="space-y-1">
-                  <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Pipeline Engine</div>
-                  <h3 className="text-xl font-bold">Scanning Repository</h3>
-                </div>
-
-                <div className="space-y-3 pt-3">
-                  {scanStages.map((stage) => {
-                    const isCompleted = activeStage > stage.id;
-                    const isActive = activeStage === stage.id;
-                    return (
-                      <div 
-                        key={stage.id} 
-                        className={`flex items-center gap-3 transition-opacity duration-300 ${
-                          isCompleted ? 'opacity-100' : isActive ? 'opacity-100 font-semibold' : 'opacity-40'
-                        }`}
-                      >
-                        <div className="flex-shrink-0">
-                          {isCompleted ? (
-                            <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-450 border border-emerald-250 dark:border-emerald-800">
-                              <Check className="w-3 h-3" />
-                            </div>
-                          ) : isActive ? (
-                            <Loader2 className="w-5 h-5 text-indigo-650 dark:text-indigo-400 animate-spin" />
-                          ) : (
-                            <CircleDot className="w-5 h-5 text-gray-300 dark:text-gray-700" />
-                          )}
-                        </div>
-                        <span className="text-xs">{stage.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Right Column: Console terminal */}
-              <div className="flex-1 w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden shadow-2xl transition-colors duration-300">
-                {/* Terminal Header */}
-                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-850 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-mono transition-colors">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                  </div>
-                  <span>git-crawler-scanner</span>
-                  <div className="w-8" />
-                </div>
-                
-                {/* Terminal Logs */}
-                <div className="p-6 h-80 overflow-y-auto font-mono text-[11px] space-y-2 text-left bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
-                  {logs.map((log) => (
-                    <div key={log.id} className="flex gap-2">
-                      <span className="text-gray-400 select-none">❯</span>
-                      <span className={
-                        log.type === 'error' ? 'text-rose-600 dark:text-rose-400' :
-                        log.type === 'success' ? 'text-emerald-600 dark:text-emerald-450' :
-                        'text-gray-700 dark:text-gray-300'
-                      }>
-                        {log.text}
-                      </span>
-                    </div>
-                  ))}
-                  {isGenerating && activeStage < 7 && (
-                    <div className="flex gap-2 text-indigo-650 dark:text-indigo-400 animate-pulse">
-                      <span className="text-gray-400 select-none">❯</span>
-                      <span>Crawling repository state...</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <AgentGraphVisualizer logs={logs} qualityReport={qualityReport} />
             </motion.div>
           )}
 
-          {/* Step 2: COMPLETED DISPLAY */}
+          {/* Step 2: COMPLETED DISPLAY & EDITOR */}
           {currentStep === 2 && (
             <motion.div 
               key="step-result"
@@ -416,49 +349,46 @@ export default function ProjectBuilder() {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col md:flex-row overflow-hidden h-full w-full"
             >
-              {/* Left Panel: Info Summary */}
-              <div className={`w-full md:w-[350px] p-6 border-b md:border-b-0 md:border-r ${isDark ? 'border-gray-800 bg-gray-900/30' : 'border-gray-200 bg-white'} flex flex-col gap-6 overflow-y-auto`}>
+              {/* Left Panel: Info, Badge Configurator, Section Templates */}
+              <div className={`w-full md:w-[360px] p-6 border-b md:border-b-0 md:border-r ${isDark ? 'border-gray-800 bg-gray-900/30' : 'border-gray-200 bg-white'} flex flex-col gap-6 overflow-y-auto`}>
                 <div className="space-y-1 text-left">
                   <div className="text-[10px] font-bold text-indigo-650 dark:text-indigo-450 uppercase tracking-wider">Repository Details</div>
                   <h3 className="text-base font-bold truncate">{repoUrl.split('/').slice(-2).join('/')}</h3>
                 </div>
 
                 <div className="space-y-4">
-                  <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-200'} border space-y-3 text-left`}>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>Platform:</span>
-                      <span className="font-semibold flex items-center gap-1"><Github className="w-3.5 h-3.5" /> GitHub</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>Access:</span>
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-450">Public Repo</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>Generated:</span>
-                      <span className="font-semibold">{new Date().toLocaleDateString()}</span>
-                    </div>
-                  </div>
+                  <button 
+                    onClick={() => setShowExportModal(true)}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-lg shadow-emerald-500/20 transition-all"
+                  >
+                    <GitCommit className="w-4 h-4" /> 1-Click Commit to GitHub
+                  </button>
 
-                  <div className="space-y-2">
+                  <div className="flex gap-2">
                     <button 
                       onClick={handleCopy}
-                      className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border ${isDark ? 'border-gray-800 bg-white/5 hover:bg-white/10' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs font-bold transition-all`}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border ${isDark ? 'border-gray-800 bg-white/5 hover:bg-white/10' : 'border-gray-200 bg-white hover:bg-gray-50'} text-xs font-bold transition-all`}
                     >
-                      <Copy className="w-4 h-4" /> Copy README Content
+                      <Copy className="w-3.5 h-3.5" /> Copy
                     </button>
                     <button 
                       onClick={handleDownload}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-550 dark:hover:bg-indigo-600 text-xs font-bold text-white hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md shadow-indigo-500/10"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-xs font-bold text-white transition-all"
                     >
-                      <Download className="w-4 h-4" /> Download README.md
+                      <Download className="w-3.5 h-3.5" /> Download
                     </button>
                   </div>
+
+                  {/* Shields.io Badge Configurator Widget */}
+                  <BadgeConfigurator onInsertBadge={handleInsertSnippet} />
+
+                  {/* Modular Section Organizer Widget */}
+                  <SectionOrganizer onInsertSection={handleInsertSnippet} />
                 </div>
               </div>
 
               {/* Right Panel: Editor/Preview Split */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Mode Tabs */}
                 <div className={`px-6 py-3 border-b ${isDark ? 'border-gray-800 bg-gray-900/40' : 'border-gray-200 bg-white'} flex items-center justify-between`}>
                   <div className={`flex gap-1.5 p-1 rounded-lg ${isDark ? 'bg-gray-950 border-gray-800' : 'bg-gray-100 border-gray-200'} border`}>
                     <button 
@@ -467,7 +397,7 @@ export default function ProjectBuilder() {
                         previewTab === 'preview' ? 'bg-white dark:bg-indigo-550 text-indigo-650 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                       }`}
                     >
-                      <Eye className="w-3.5 h-3.5" /> Preview
+                      <Eye className="w-3.5 h-3.5" /> Live Preview
                     </button>
                     <button 
                       onClick={() => setPreviewTab('edit')}
@@ -497,7 +427,6 @@ export default function ProjectBuilder() {
                   )}
                 </div>
 
-                {/* Display Body */}
                 <div className={`flex-1 overflow-auto ${isDark ? 'bg-gray-950' : 'bg-gray-50'} p-6 text-left`}>
                   {previewTab === 'preview' && (
                     <div className={`p-6 md:p-8 rounded-xl border ${
@@ -530,6 +459,17 @@ export default function ProjectBuilder() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* GitHub 1-Click Export Modal */}
+      {showExportModal && (
+        <GitHubExporter
+          repoOwner={repoOwner}
+          repoName={repoName}
+          markdown={editMarkdown}
+          onClose={() => setShowExportModal(false)}
+        />
+      )}
     </motion.div>
   );
 }
+

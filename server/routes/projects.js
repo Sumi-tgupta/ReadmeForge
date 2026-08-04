@@ -130,6 +130,79 @@ router.post('/:id/duplicate', async (req, res, next) => {
 });
 
 /**
+ * POST /api/projects/export-github
+ * Commits generated README directly to user's GitHub repository via GitHub REST API.
+ */
+router.post('/export-github', async (req, res, next) => {
+  try {
+    const { repoOwner, repoName, markdown, branch = 'main', commitMessage = 'docs: update README via README Forge' } = req.body;
+
+    if (!repoOwner || !repoName || !markdown) {
+      return res.status(400).json({ error: 'Missing required parameters: repoOwner, repoName, and markdown' });
+    }
+
+    const githubToken = req.user?.access_token || process.env.GITHUB_TOKEN;
+    if (!githubToken) {
+      return res.status(401).json({ error: 'GitHub OAuth token required to commit directly to repository.' });
+    }
+
+    // 1. Get current README SHA if exists (for updating existing file)
+    let fileSha = null;
+    try {
+      const getFileRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/README.md?ref=${branch}`, {
+        headers: {
+          'Authorization': `Bearer ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'README-Forge'
+        }
+      });
+      if (getFileRes.ok) {
+        const fileData = await getFileRes.json();
+        fileSha = fileData.sha;
+      }
+    } catch (e) {
+      // File doesn't exist yet, fileSha remains null
+    }
+
+    // 2. Put / Commit README.md
+    const commitBody = {
+      message: commitMessage,
+      content: Buffer.from(markdown).toString('base64'),
+      branch
+    };
+    if (fileSha) {
+      commitBody.sha = fileSha;
+    }
+
+    const commitRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/README.md`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'README-Forge'
+      },
+      body: JSON.stringify(commitBody)
+    });
+
+    if (!commitRes.ok) {
+      const errText = await commitRes.text();
+      return res.status(commitRes.status).json({ error: `GitHub API error: ${errText}` });
+    }
+
+    const commitResult = await commitRes.json();
+    return res.json({
+      success: true,
+      commitUrl: commitResult.commit?.html_url || `https://github.com/${repoOwner}/${repoName}`,
+      message: 'README successfully committed to GitHub repository!'
+    });
+
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * DELETE /api/projects/:id
  * Remove a project
  */
@@ -147,3 +220,4 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 export default router;
+
